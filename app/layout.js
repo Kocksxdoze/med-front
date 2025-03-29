@@ -1,9 +1,19 @@
 "use client";
-import { ChakraProvider, Box, Flex } from "@chakra-ui/react";
-import Header from "../components/med/header";
-import ParticlesComponent from "../components/med/particles";
+import { ChakraProvider } from "@chakra-ui/react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 export default function RootLayout({ children }) {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (!token) {
+      router.push("/auth");
+    }
+  }, [router]);
+
   return (
     <html lang="en">
       <body>
