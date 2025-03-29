@@ -91,7 +91,7 @@ function GraphOne() {
     labels: data.map((item) => formatDate(item.date)),
     datasets: [
       {
-        label: "Cashbox Sum",
+        label: "Прибыль",
         data: data.map((item) => item.sum),
         borderColor: "#0033AA",
         backgroundColor: (context) =>
@@ -105,7 +105,7 @@ function GraphOne() {
         fill: true,
       },
       {
-        label: "Debt",
+        label: "Долги",
         data: data.map((item) => item.debt ?? 0),
         borderColor: "#FF0000",
         backgroundColor: (context) =>
@@ -130,7 +130,7 @@ function GraphOne() {
       },
       title: {
         display: true,
-        text: "Cashbox Data Overview",
+        text: "Статистика кассы",
         color: "#333",
         font: { size: 22, weight: "bold" },
       },
@@ -165,13 +165,13 @@ function GraphOne() {
           <Thead bg="blue.500">
             <Tr>
               <Th color="white" fontSize="lg">
-                Date
+                Дата
               </Th>
               <Th color="white" fontSize="lg">
-                Cashbox Sum
+                Сумма
               </Th>
               <Th color="white" fontSize="lg">
-                Debt
+                Долг
               </Th>
             </Tr>
           </Thead>

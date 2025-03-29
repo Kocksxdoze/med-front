@@ -18,12 +18,11 @@ function PatientsPage() {
           w="full"
           h="100vh"
           display="flex"
-          alignItems="center"
-          justifyContent="center"
           bgGradient="linear(to-b, black, white)"
+          mt={10}
         >
           <ParticlesComponent />
-          <Box zIndex={"999"}>
+          <Box zIndex={"999"} px={"50px"}>
             <Patients />
           </Box>
         </Box>

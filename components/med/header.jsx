@@ -239,7 +239,7 @@ function Header() {
               background: "#0052b4",
               border: "1px solid transparent",
             }}
-            onClick={() => router.push("/clients")}
+            onClick={() => router.push("/patients")}
           >
             Пациенты
           </Button>

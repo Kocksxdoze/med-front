@@ -19,6 +19,7 @@ import {
 } from "../utils/icons";
 import { useRouter } from "next/navigation";
 import GraphOne from "../components/med/graphOne";
+import GraphTwo from "../components/med/graphTwo";
 
 function Main() {
   const router = useRouter();
@@ -181,7 +182,15 @@ function Main() {
           </Button>
         </Flex>
       </Box>
-      <Box zIndex={"999"} mt={"30px"} px={"50px"}>
+      <Box
+        zIndex={"999"}
+        mt={"30px"}
+        px={"50px"}
+        display={"flex"}
+        flexDir={"column"}
+        gap={5}
+      >
+        <GraphTwo />
         <GraphOne />
       </Box>
       <Box pos={"relative"} bottom={"0"} px={"50px"} mt={"50px"} w={"100%"}>
