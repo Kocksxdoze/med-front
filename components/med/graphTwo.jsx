@@ -181,7 +181,7 @@ function GraphTwo() {
                 <Td
                   fontSize="md"
                   fontWeight="bold"
-                  color="blue.700"
+                  color="#000"
                   borderBottom="2px solid #0033AA"
                 >
                   {client.surname} {client.name} {client.lastName}
@@ -189,10 +189,10 @@ function GraphTwo() {
                 <Td
                   fontSize="md"
                   fontWeight="bold"
-                  color="red.600"
+                  color="#000"
                   borderBottom="2px solid #AA0000"
                 >
-                  {client.phone}
+                  {client.phoneNumber}
                 </Td>
               </Tr>
             ))}

@@ -64,9 +64,9 @@ function Register() {
                 alignItems={"flex-start"}
                 gap={5}
               >
-                <Input w={"100%"} placeholder="Фамилия" />
-                <Input w={"100%"} placeholder="Имя" />
-                <Input w={"100%"} placeholder="Отчество" />
+                <Input required w={"100%"} placeholder="Фамилия" />
+                <Input required w={"100%"} placeholder="Имя" />
+                <Input required w={"100%"} placeholder="Отчество" />
 
                 <chakra.span display={"flex"} alignItems={"center"} gap={5}>
                   <Input w={"100%"} type="date" />

@@ -167,7 +167,7 @@ function GraphOne() {
               <Th color="white" fontSize="lg">
                 Дата
               </Th>
-              <Th color="white" fontSize="lg">
+              <Th color="#fff" fontSize="lg">
                 Сумма
               </Th>
               <Th color="white" fontSize="lg">
@@ -189,7 +189,7 @@ function GraphOne() {
                 <Td
                   fontSize="md"
                   fontWeight="bold"
-                  color="blue.700"
+                  color="#000"
                   borderBottom="2px solid #0033AA"
                 >
                   {item.sum.toLocaleString()}

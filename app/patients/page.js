@@ -22,7 +22,13 @@ function PatientsPage() {
           mt={10}
         >
           <ParticlesComponent />
-          <Box zIndex={"999"} px={"50px"}>
+          <Box
+            zIndex={"999"}
+            w={"100%"}
+            px={"50px"}
+            display={"flex"}
+            justifyContent={"center"}
+          >
             <Patients />
           </Box>
         </Box>

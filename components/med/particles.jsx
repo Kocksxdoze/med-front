@@ -21,21 +21,33 @@ const ParticlesComponent = () => {
         background: { color: "#E7E7E3" },
         particles: {
           number: { value: 180, density: { enable: true, value_area: 950 } },
+          shape: {
+            type: "character",
+            character: {
+              value: "+",
+              font: "Arial",
+              style: "",
+              weight: "bold",
+              fill: true,
+            },
+          },
           color: { value: ["#4ca6ff", "#00cc99", "#66d9ff"] },
-          shape: { type: "circle" },
-          opacity: { value: 0.6, random: true },
-          size: { value: 4, random: true },
-          move: { enable: true, speed: 0.4, outModes: "out" },
+          opacity: { value: 0.8, random: false },
+          size: { value: 12, random: true },
+          move: { enable: true, speed: 0.5, outModes: "out" },
           links: {
             enable: true,
             distance: 180,
             color: "#4ca6ff",
-            opacity: 0.4,
+            opacity: 0.6,
             width: 1,
           },
         },
         interactivity: {
-          events: { onHover: { enable: true, mode: "grab" } },
+          events: {
+            onHover: { enable: true, mode: "grab" },
+            onClick: { enable: true, mode: "repulse" },
+          },
           modes: { repulse: { distance: 150, duration: 0.4 } },
         },
       }}

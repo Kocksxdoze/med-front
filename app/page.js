@@ -4,19 +4,7 @@ import { Box, Flex, Button } from "@chakra-ui/react";
 import ParticlesComponent from "../components/med/particles";
 import Header from "../components/med/header";
 import Footer from "../components/med/footer";
-import {
-  Patient,
-  LabReport,
-  CashboxReport,
-  DoctorsReport,
-  OffersReport,
-  Salary,
-  Cards,
-  Cert,
-  Doctor,
-  Companies,
-  Users,
-} from "../utils/icons";
+
 import { useRouter } from "next/navigation";
 import GraphOne from "../components/med/graphOne";
 import GraphTwo from "../components/med/graphTwo";

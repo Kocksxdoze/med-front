@@ -38,15 +38,16 @@ function Header() {
 
   const clients = async () => {
     try {
-      const response = fetcher("cleints");
+      const response = await fetch("http://localhost:4000/clients");
       const data = await response.json();
       console.log(data);
 
       if (response.ok) {
         setClientsCount(data.length);
+        console.log("Data: ", data);
         toast({
           title: "Количество клиентов обновлено!",
-          status: "info",
+          status: "success",
           duration: "5000",
           position: "bottom-right",
         });
@@ -62,7 +63,9 @@ function Header() {
       console.log("error:", error);
     }
   };
-
+  useEffect(() => {
+    clients();
+  }, []);
   useEffect(() => {
     const savedTime = localStorage.getItem("logoutTimer");
     if (savedTime) {
@@ -87,12 +90,6 @@ function Header() {
 
   const logout = () => {
     localStorage.removeItem("logoutTimer");
-    toast({
-      title: "Вы вышли из аккаунта.",
-      status: "info",
-      duration: 5000,
-      position: "bottom-right",
-    });
     router.push("/auth");
   };
 
@@ -111,11 +108,31 @@ function Header() {
         <Box
           display={"flex"}
           alignItems={"center"}
-          justifyContent={"center"}
-          gap={10}
+          justifyContent={"space-between"}
+          gap={5}
         >
-          <Input
+          <Heading
+            h={"auto"}
             w={"auto"}
+            lineHeight={"21px"}
+            fontSize={"25px"}
+            color={"#0052b4"}
+            mt={"5px"}
+          >
+            ROSHIDON
+            <br />
+            <chakra.span
+              fontSize={"16px"}
+              w={"auto"}
+              h={"auto"}
+              color={"black"}
+            >
+              medical center
+            </chakra.span>
+          </Heading>
+
+          <Input
+            w={"150px"}
             placeholder="№ карты"
             bg={"transparent"}
             border={0}
@@ -132,7 +149,7 @@ function Header() {
             }}
           />
           <Input
-            w={"auto"}
+            w={"150px"}
             placeholder="Лаб ID"
             bg={"transparent"}
             border={0}
@@ -149,7 +166,7 @@ function Header() {
             }}
           />
           <Input
-            w={"auto"}
+            w={"150px"}
             placeholder="Пац ID"
             bg={"transparent"}
             border={0}
@@ -165,11 +182,10 @@ function Header() {
               borderBottom: "1px solid #000",
             }}
           />
-          <Text>число пациентов:{clientsCount}</Text>
+          <Text>число пациентов: {clientsCount}</Text>
           <Text>
-            {time} {weekday.charAt(0).toUpperCase() + weekday.slice(1)},
+            {time} {weekday.charAt(0).toUpperCase() + weekday.slice(1)}, {year}
           </Text>
-          <Text>{year}</Text>
           <Button
             bg={"transparent"}
             borderBottom={"1px solid black"}
@@ -182,20 +198,6 @@ function Header() {
             {String(remainingTime % 60).padStart(2, "0")})
           </Button>
         </Box>
-        <Heading
-          h={"auto"}
-          w={"auto"}
-          lineHeight={"25px"}
-          fontSize={"30px"}
-          color={"#0052b4"}
-          mt={"14px"}
-        >
-          ROSHIDON
-          <br />
-          <chakra.span fontSize={"20px"} w={"auto"} h={"auto"} color={"black"}>
-            medical center
-          </chakra.span>
-        </Heading>
 
         <Box display={"flex"} alignItems={"center"} gap={"10px"} mt={5} px={5}>
           <Button
@@ -362,21 +364,6 @@ function Header() {
             onClick={() => router.push("/plan")}
           >
             Планировщик
-          </Button>
-          <Button
-            bg={"#fff"}
-            color={"#000"}
-            border={"1px solid transparent"}
-            borderRadius={"8px"}
-            fontWeight={"600"}
-            _hover={{
-              color: "#fff",
-              background: "#0052b4",
-              border: "1px solid transparent",
-            }}
-            onClick={() => router.push("/spending")}
-          >
-            Расходы
           </Button>
         </Box>
       </Flex>

@@ -1,5 +1,5 @@
 "use client";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -14,10 +14,51 @@ export default function RootLayout({ children }) {
     }
   }, [router]);
 
+  const theme = extendTheme({
+    components: {
+      Radio: {
+        baseStyle: {
+          control: {
+            _checked: {
+              bg: "#000",
+              borderColor: "#000",
+              _hover: {
+                borderColor: "#000",
+                bg: "#000",
+              },
+            },
+            _hover: {
+              borderColor: "#000",
+              bg: "#fff",
+            },
+          },
+        },
+      },
+      Checkbox: {
+        baseStyle: {
+          control: {
+            _checked: {
+              bg: "#000",
+              borderColor: "#000",
+              _hover: {
+                borderColor: "#000",
+                bg: "#000",
+              },
+            },
+            _hover: {
+              borderColor: "#000",
+              bg: "#fff",
+            },
+          },
+        },
+      },
+    },
+  });
+
   return (
     <html lang="en">
       <body>
-        <ChakraProvider>{children}</ChakraProvider>
+        <ChakraProvider theme={theme}>{children}</ChakraProvider>
       </body>
     </html>
   );

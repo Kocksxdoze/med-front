@@ -10,7 +10,10 @@ import {
   Th,
   Td,
   TableContainer,
+  InputGroup,
+  InputRightElement,
 } from "@chakra-ui/react";
+import { SearchIcon } from "@chakra-ui/icons";
 
 function Patients() {
   const [patients, setPatients] = useState([]);
@@ -32,15 +35,24 @@ function Patients() {
 
   return (
     <Box p={4} borderRadius={"16px"} w="100%" overflowX="auto" bg="#fff">
-      <Input
-        placeholder="Поиск по любому параметру"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        mb={4}
-        border="1px solid #000"
-        w={{ base: "100%", md: "50%" }}
-      />
-      <TableContainer overflowX="auto" maxWidth="100vw">
+      <InputGroup mb={4} w={{ base: "100%", md: "50%" }}>
+        <Input
+          placeholder="Поиск по любому параметру"
+          color={"black"}
+          _placeholder={{
+            color: "black",
+          }}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          border="1px solid #000"
+          pr="2.5rem"
+        />
+        <InputRightElement>
+          <SearchIcon color="black.500" />
+        </InputRightElement>
+      </InputGroup>
+
+      <TableContainer overflowX="auto" width="100%">
         <Table
           variant="striped"
           size="sm"
@@ -49,18 +61,18 @@ function Patients() {
         >
           <Thead position="sticky" top={0} zIndex={1} bg="white">
             <Tr>
-              <Th minWidth="50px">ID</Th>
-              <Th minWidth="150px">ФИО</Th>
-              <Th minWidth="120px">Телефон</Th>
-              <Th minWidth="120px">Домашний Телефон</Th>
-              <Th minWidth="80px">Пол</Th>
-              <Th minWidth="120px">Дата рождения</Th>
-              <Th minWidth="120px">Соц положение</Th>
-              <Th minWidth="75px">Долг</Th>
-              <Th minWidth="80px">Скидка</Th>
-              <Th minWidth="150px">Категория льготы</Th>
-              <Th minWidth="120px">Навигация</Th>
-              <Th minWidth="120px">Доктор</Th>
+              <Th minWidth="auto">ID</Th>
+              <Th minWidth="auto">ФИО</Th>
+              <Th minWidth="auto">Телефон</Th>
+              <Th minWidth="auto">Домашний Телефон</Th>
+              <Th minWidth="auto">Пол</Th>
+              <Th minWidth="auto">Дата рождения</Th>
+              <Th minWidth="auto">Соц положение</Th>
+              <Th minWidth="auto">Долг</Th>
+              <Th minWidth="auto">Скидка</Th>
+              <Th minWidth="auto">Категория льготы</Th>
+              <Th minWidth="auto">Навигация</Th>
+              <Th minWidth="auto">Доктор</Th>
             </Tr>
           </Thead>
           <Tbody>
