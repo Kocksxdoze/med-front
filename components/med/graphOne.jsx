@@ -56,10 +56,6 @@ function GraphOne() {
     return <Spinner size="xl" />;
   }
 
-  if (!data || data.length === 0) {
-    return <Text>No data available</Text>;
-  }
-
   const formatDate = (isoString) => {
     const date = new Date(isoString);
     return date.toLocaleDateString("en-GB", {

@@ -17,10 +17,33 @@ import Header from "../../components/med/header";
 import Footer from "../../components/med/footer";
 import ParticlesComponent from "../../components/med/particles";
 import { useRouter } from "next/navigation";
+import fetcher from "../../utils/fetcher";
 
 function Register() {
+  const [formData, setFormData] = useState([]);
   const [value, setValue] = useState("");
   const router = useRouter();
+
+  const change = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const sumbit = async () => {
+    try {
+      const response = await fetch("client/new", {
+        method: "POST",
+        headers: { "Content-Type:": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        router.push(`/patients/${data.id}`);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <>
       <Box pos={"absolute"} w={"100%"}>
@@ -69,23 +92,65 @@ function Register() {
                 alignItems={"flex-start"}
                 gap={5}
               >
-                <Input required w={"100%"} placeholder="Фамилия" />
-                <Input required w={"100%"} placeholder="Имя" />
-                <Input required w={"100%"} placeholder="Отчество" />
+                <Input
+                  name="surname"
+                  onChange={change}
+                  required
+                  w={"100%"}
+                  placeholder="Фамилия"
+                />
+                <Input
+                  name="name"
+                  onChange={change}
+                  required
+                  w={"100%"}
+                  placeholder="Имя"
+                />
+                <Input
+                  onChange={change}
+                  name="lastName"
+                  required
+                  w={"100%"}
+                  placeholder="Отчество"
+                />
 
                 <chakra.span display={"flex"} alignItems={"center"} gap={5}>
                   <Input w={"100%"} type="date" />
                   <Text>Пол</Text>
-                  <Radio>Мужской</Radio>
-                  <Radio>Женский</Radio>
+                  <Radio name="sex" onChange={change} value="0">
+                    Мужской
+                  </Radio>
+                  <Radio name="sex" value="1" onChange={change}>
+                    Женский
+                  </Radio>
                 </chakra.span>
                 <chakra.span display={"flex"} alignItems={"center"} gap={5}>
-                  <Input w={"100%"} placeholder="Домашний телефон" />
-                  <Input w={"100%"} placeholder="Мобильный телефон" />
+                  <Input
+                    name="homePhone"
+                    onChange={change}
+                    w={"100%"}
+                    placeholder="Домашний телефон"
+                  />
+                  <Input
+                    name="phoneNumber"
+                    onChange={change}
+                    w={"100%"}
+                    placeholder="Мобильный телефон"
+                  />
                   <Checkbox>СМС</Checkbox>
                 </chakra.span>
-                <Input w={"100%"} placeholder="Email" />
-                <Input w={"100%"} placeholder="Социальное положение" />
+                <Input
+                  w={"100%"}
+                  name="email"
+                  onChange={change}
+                  placeholder="Email"
+                />
+                <Input
+                  w={"100%"}
+                  onChange={change}
+                  name="socialPlace"
+                  placeholder="Социальное положение"
+                />
               </Flex>
 
               <Flex
@@ -95,19 +160,59 @@ function Register() {
                 alignItems={"flex-start"}
                 gap={5}
               >
-                <Input w={"100%"} placeholder="Республика" />
-                <Input w={"100%"} placeholder="Регион" />
-                <Input w={"100%"} placeholder="Район" />
-                <Input w={"100%"} placeholder="Адрес" />
+                <Input
+                  w={"100%"}
+                  name="republic"
+                  onChange={change}
+                  placeholder="Республика"
+                />
+                <Input
+                  w={"100%"}
+                  name="region"
+                  onChange={change}
+                  placeholder="Регион"
+                />
+                <Input
+                  w={"100%"}
+                  name="street"
+                  onChange={change}
+                  placeholder="Район"
+                />
+                <Input
+                  w={"100%"}
+                  name="addres"
+                  onChange={change}
+                  placeholder="Адрес"
+                />
 
                 <chakra.span display={"flex"} alignItems={"center"} gap={5}>
-                  <Input w={"100%"} placeholder="Серия" />
-                  <Input w={"100%"} placeholder="Номер" />
+                  <Input
+                    w={"100%"}
+                    name="passportSeries"
+                    onChange={change}
+                    placeholder="Серия"
+                  />
+                  <Input
+                    w={"100%"}
+                    name="passportNum"
+                    onChange={change}
+                    placeholder="Номер"
+                  />
                   <Input w={"100%"} placeholder="Дата выдачи" />
                   <Input w={"100%"} placeholder="Срок годности" />
                 </chakra.span>
-                <Input w={"100%"} placeholder="Кем выдан" />
-                <Input w={"100%"} placeholder="Место работы/учебы" />
+                <Input
+                  w={"100%"}
+                  name="passportGiver"
+                  onChange={change}
+                  placeholder="Кем выдан"
+                />
+                <Input
+                  w={"100%"}
+                  name="work"
+                  onChange={change}
+                  placeholder="Место работы/учебы"
+                />
               </Flex>
             </Box>
 
@@ -124,8 +229,18 @@ function Register() {
                 flexDir={"column"}
                 gap={5}
               >
-                <Input w={"100%"} placeholder="Скидка" />
-                <Input w={"100%"} placeholder="Категория льгот" />
+                <Input
+                  w={"100%"}
+                  name="discoiunt"
+                  onChange={change}
+                  placeholder="Скидка"
+                />
+                <Input
+                  w={"100%"}
+                  name="benefitCategory"
+                  onChange={change}
+                  placeholder="Категория льгот"
+                />
               </chakra.span>
               <chakra.span
                 display={"flex"}
@@ -133,8 +248,18 @@ function Register() {
                 flexDir={"column"}
                 gap={5}
               >
-                <Input w={"100%"} placeholder="ФИО врача или номер" />
-                <Input w={"100%"} placeholder="ID Врача" />
+                <Input
+                  w={"100%"}
+                  name="doctor"
+                  onChange={change}
+                  placeholder="ФИО врача или номер"
+                />
+                <Input
+                  w={"100%"}
+                  name="doctorId"
+                  onChange={change}
+                  placeholder="ID Врача"
+                />
               </chakra.span>
               <chakra.span
                 display={"flex"}

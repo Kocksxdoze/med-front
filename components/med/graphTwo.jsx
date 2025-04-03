@@ -34,13 +34,14 @@ ChartJS.register(
   Legend,
   Filler
 );
+import fetchClients from "../../utils/fetchClients";
 
 function GraphTwo() {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:4000/clients")
+    fetchClients()
       .then((response) => response.json())
       .then((data) => {
         const lastMonthClients = data.filter((client) => {
@@ -61,10 +62,6 @@ function GraphTwo() {
 
   if (loading) {
     return <Spinner size="xl" />;
-  }
-
-  if (!clients || clients.length === 0) {
-    return <Text>No clients found for the last month</Text>;
   }
 
   const formatDate = (isoString) => {
