@@ -8,8 +8,13 @@ import {
   Heading,
   chakra,
   useToast,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 import fetcher from "../../utils/fetcher";
 
 function Header() {
@@ -305,21 +310,38 @@ function Header() {
           >
             Лаборатория
           </Button>
-          <Button
-            bg={"#fff"}
-            color={"#000"}
-            border={"1px solid transparent"}
-            borderRadius={"8px"}
-            fontWeight={"600"}
-            _hover={{
-              color: "#fff",
-              background: "#0052b4",
-              border: "1px solid transparent",
-            }}
-            onClick={() => router.push("/settings")}
-          >
-            Настройки
-          </Button>
+          <Menu>
+            <MenuButton
+              as={Button}
+              bg={"#fff"}
+              color={"#000"}
+              border={"1px solid transparent"}
+              borderRadius={"8px"}
+              fontWeight={"600"}
+              _hover={{
+                color: "#fff",
+                background: "#0052b4",
+                border: "1px solid transparent",
+              }}
+              rightIcon={<ChevronDownIcon />}
+            >
+              Настройки
+            </MenuButton>
+            <MenuList zIndex={"999"}>
+              <MenuItem onClick={() => router.push("/settings/bases")}>
+                Филлиалы
+              </MenuItem>
+              <MenuItem onClick={() => router.push("/settings/doctors")}>
+                Доктора
+              </MenuItem>
+              <MenuItem onClick={() => router.push("/settings/category")}>
+                Категории
+              </MenuItem>
+              <MenuItem onClick={() => router.push("/settings/sub-category")}>
+                Под-категории
+              </MenuItem>
+            </MenuList>
+          </Menu>
           <Button
             bg={"#fff"}
             color={"#000"}

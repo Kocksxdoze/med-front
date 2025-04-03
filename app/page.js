@@ -171,7 +171,7 @@ function Main() {
         </Flex>
       </Box>
       <Box
-        zIndex={"999"}
+        zIndex={"500"}
         mt={"30px"}
         px={"50px"}
         display={"flex"}

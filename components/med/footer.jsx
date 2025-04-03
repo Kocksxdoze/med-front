@@ -10,7 +10,7 @@ function Footer() {
         alignItems={"center"}
         justifyContent={"center"}
         w={"100%"}
-        h={"100px"}
+        h={"90px"}
         bg={"#fff"}
         borderTopRadius={"16px"}
         shadow={"2xl"}

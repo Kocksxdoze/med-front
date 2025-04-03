@@ -3,6 +3,10 @@ import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import Header from "../components/med/header";
+import Footer from "../components/med/footer";
+import ParticlesComponent from "../components/med/particles";
+import { Box } from "@chakra-ui/react";
 
 export default function RootLayout({ children }) {
   const router = useRouter();

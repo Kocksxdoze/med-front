@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Flex,
@@ -10,12 +10,17 @@ import {
   chakra,
   Radio,
   Checkbox,
+  RadioGroup,
+  Stack,
 } from "@chakra-ui/react";
 import Header from "../../components/med/header";
 import Footer from "../../components/med/footer";
 import ParticlesComponent from "../../components/med/particles";
+import { useRouter } from "next/navigation";
 
 function Register() {
+  const [value, setValue] = useState("");
+  const router = useRouter();
   return (
     <>
       <Box pos={"absolute"} w={"100%"}>
@@ -138,16 +143,37 @@ function Register() {
                 gap={5}
               >
                 <Text>Имеются ли у вас направления?</Text>
-                <chakra.span
-                  display={"flex"}
-                  alignItems={"flex-start"}
-                  flexDir={"row"}
-                  gap={5}
-                >
-                  <Radio>Экстернная помощь</Radio>
-                  <Radio>Страхование</Radio>
-                  <Radio>Оформление новой истории болезни</Radio>
-                </chakra.span>
+                <chakra.div>
+                  {/* Группа радиокнопок */}
+                  <RadioGroup onChange={setValue} value={value}>
+                    <Stack direction="row" spacing={5}>
+                      <Radio value="help">Экстренная помощь</Radio>
+                      <Radio value="insurance">Страхование</Radio>
+                      <Radio value="history">
+                        Оформление новой истории болезни
+                      </Radio>
+                    </Stack>
+                  </RadioGroup>
+
+                  {/* Инпуты для "Страхование" */}
+                  {value === "insurance" && (
+                    <Stack mt={3} spacing={2}>
+                      <Input placeholder="Компания" />
+                      <Input placeholder="Номер полиса" />
+                      <Input placeholder="Баланс полиса" />
+                    </Stack>
+                  )}
+
+                  {/* Инпуты для "Оформление новой истории болезни" */}
+                  {value === "history" && (
+                    <Stack mt={3} spacing={2}>
+                      <Input placeholder="Тип карты" />
+                      <Input placeholder="№ Истории болезни" />
+                      <Input placeholder="Дата открытия" />
+                      <Input placeholder="Ответственный врач" />
+                    </Stack>
+                  )}
+                </chakra.div>
               </chakra.span>
             </Flex>
 
@@ -157,6 +183,7 @@ function Register() {
               mt={"50px"}
               px={"100px"}
               justifyContent={"flex-end"}
+              onClick={() => router.push("/patients")}
             >
               <Button border={"1px solid transparent"}>
                 Вернуться к списку
