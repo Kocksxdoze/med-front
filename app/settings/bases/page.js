@@ -1,12 +1,12 @@
 "use client";
 import React from "react";
-import Header from "../../components/med/header";
-import Footer from "../../components/med/footer";
-import Patients from "../../components/med/patients";
-import ParticlesComponent from "../../components/med/particles";
-import { Box, Flex } from "@chakra-ui/react";
+import Header from "../../../components/med/header";
+import Footer from "../../../components/med/footer";
+import ParticlesComponent from "../../../components/med/particles";
+import Bases from "../../../components/med/bases";
+import { Flex, Box } from "@chakra-ui/react";
 
-function PatientsPage() {
+function DoctorsPage() {
   return (
     <>
       <Flex flexDir={"column"} pos={"absolute"} w={"100%"}>
@@ -29,7 +29,7 @@ function PatientsPage() {
             display={"flex"}
             justifyContent={"center"}
           >
-            <Patients />
+            <Bases />
           </Box>
         </Box>
         <Box pos={"relative"} bottom={"0"} px={"50px"} mt={"50px"} w={"100%"}>
@@ -40,4 +40,4 @@ function PatientsPage() {
   );
 }
 
-export default PatientsPage;
+export default DoctorsPage;

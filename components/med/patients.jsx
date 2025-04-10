@@ -28,7 +28,13 @@ function Patients() {
   }, []);
 
   const filteredPatients = patients.filter((patient) =>
-    [patient?.id, patient?.name, patient?.createdAt].some((field) =>
+    [
+      patient?.id,
+      patient?.name,
+      patient?.surname,
+      patient?.lastname,
+      patient?.createdAt,
+    ].some((field) =>
       field?.toString().toLowerCase().includes(search.toLowerCase())
     )
   );

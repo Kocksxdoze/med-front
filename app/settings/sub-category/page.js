@@ -1,12 +1,12 @@
 "use client";
 import React from "react";
-import Header from "../../components/med/header";
-import Footer from "../../components/med/footer";
-import Patients from "../../components/med/patients";
-import ParticlesComponent from "../../components/med/particles";
-import { Box, Flex } from "@chakra-ui/react";
+import Header from "../../../components/med/header";
+import Footer from "../../../components/med/footer";
+import ParticlesComponent from "../../../components/med/particles";
+import SubCategories from "../../../components/categories/sub-categories";
+import { Flex, Box } from "@chakra-ui/react";
 
-function PatientsPage() {
+function SubCategoryPage() {
   return (
     <>
       <Flex flexDir={"column"} pos={"absolute"} w={"100%"}>
@@ -29,7 +29,7 @@ function PatientsPage() {
             display={"flex"}
             justifyContent={"center"}
           >
-            <Patients />
+            <SubCategories />
           </Box>
         </Box>
         <Box pos={"relative"} bottom={"0"} px={"50px"} mt={"50px"} w={"100%"}>
@@ -40,4 +40,4 @@ function PatientsPage() {
   );
 }
 
-export default PatientsPage;
+export default SubCategoryPage;

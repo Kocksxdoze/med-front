@@ -2,6 +2,7 @@
 import { useCallback } from "react";
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
+import { Box } from "@chakra-ui/react";
 
 const ParticlesComponent = () => {
   const particlesInit = useCallback(async (engine) => {
@@ -15,12 +16,12 @@ const ParticlesComponent = () => {
   return (
     <Particles
       id="tsparticles"
-      className="absolute inset-0"
+      className="particles-blur absolute inset-0"
       init={particlesInit}
       options={{
         background: { color: "#E7E7E3" },
         particles: {
-          number: { value: 180, density: { enable: true, value_area: 950 } },
+          number: { value: 120, density: { enable: true, value_area: 850 } },
           shape: {
             type: "character",
             character: {
@@ -34,7 +35,7 @@ const ParticlesComponent = () => {
           color: { value: ["#4ca6ff", "#00cc99", "#66d9ff"] },
           opacity: { value: 0.8, random: false },
           size: { value: 12, random: true },
-          move: { enable: true, speed: 0.5, outModes: "out" },
+          move: { enable: true, speed: 0.3, outModes: "out" },
           links: {
             enable: true,
             distance: 180,

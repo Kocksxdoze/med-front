@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Box,
   Flex,
@@ -20,24 +20,30 @@ import { useRouter } from "next/navigation";
 import fetcher from "../../utils/fetcher";
 
 function Register() {
-  const [formData, setFormData] = useState([]);
+  const formRef = useRef({});
   const [value, setValue] = useState("");
+  const [value2, setValue2] = useState("");
   const router = useRouter();
 
   const change = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    formRef.current[e.target.name] = e.target.value;
   };
 
-  const sumbit = async () => {
+  const submit = async () => {
+    const formData = { ...formRef.current, sex: value2 };
+
     try {
-      const response = await fetch("client/new", {
+      const response = await fetch("http://localhost:4000/client/create", {
         method: "POST",
-        headers: { "Content-Type:": "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+
       const data = await response.json();
-      if (response.ok) {
-        router.push(`/patients/${data.id}`);
+      console.log("Отправленные данные:", data.id);
+
+      if (data && data.id) {
+        router.push(`/patient/${data.id}`);
       }
     } catch (error) {
       console.error(error);
@@ -67,7 +73,7 @@ function Register() {
 
           <Box
             shadow={"2xl"}
-            zIndex={"999"}
+            zIndex={"990"}
             w={"100%"}
             h={"100%"}
             bg={"#fff"}
@@ -115,14 +121,19 @@ function Register() {
                 />
 
                 <chakra.span display={"flex"} alignItems={"center"} gap={5}>
-                  <Input w={"100%"} type="date" />
+                  <Input
+                    w={"100%"}
+                    name="dateBirth"
+                    onChange={change}
+                    type="date"
+                  />
                   <Text>Пол</Text>
-                  <Radio name="sex" onChange={change} value="0">
-                    Мужской
-                  </Radio>
-                  <Radio name="sex" value="1" onChange={change}>
-                    Женский
-                  </Radio>
+                  <RadioGroup onChange={setValue2} value={value2}>
+                    <Stack direction="row">
+                      <Radio value="1">Мужской</Radio>
+                      <Radio value="0">Женский</Radio>
+                    </Stack>
+                  </RadioGroup>
                 </chakra.span>
                 <chakra.span display={"flex"} alignItems={"center"} gap={5}>
                   <Input
@@ -231,7 +242,7 @@ function Register() {
               >
                 <Input
                   w={"100%"}
-                  name="discoiunt"
+                  name="discount"
                   onChange={change}
                   placeholder="Скидка"
                 />
@@ -272,9 +283,21 @@ function Register() {
                   {/* Группа радиокнопок */}
                   <RadioGroup onChange={setValue} value={value}>
                     <Stack direction="row" spacing={5}>
-                      <Radio value="help">Экстренная помощь</Radio>
-                      <Radio value="insurance">Страхование</Radio>
-                      <Radio value="history">
+                      <Radio onChange={change} name="navigation" value="help">
+                        Экстренная помощь
+                      </Radio>
+                      <Radio
+                        onChange={change}
+                        name="navigation"
+                        value="insurance"
+                      >
+                        Страхование
+                      </Radio>
+                      <Radio
+                        onChange={change}
+                        name="navigation"
+                        value="history"
+                      >
                         Оформление новой истории болезни
                       </Radio>
                     </Stack>
@@ -322,6 +345,7 @@ function Register() {
                   color: "#000",
                   border: "1px solid #0253b4",
                 }}
+                onClick={submit}
               >
                 Добавить
               </Button>

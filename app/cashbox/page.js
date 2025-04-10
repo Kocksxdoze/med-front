@@ -23,7 +23,7 @@ function Cashbox() {
         >
           <ParticlesComponent />
           <Box
-            zIndex={"999"}
+            zIndex={"990"}
             w={"100%"}
             px={"50px"}
             display={"flex"}

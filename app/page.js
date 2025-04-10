@@ -28,6 +28,7 @@ function Main() {
         bgGradient="linear(to-b, black, white)"
       >
         <ParticlesComponent />
+
         <Flex
           mt={"30px"}
           gap={5}
@@ -48,18 +49,7 @@ function Main() {
           >
             Пациенты
           </Button>
-          <Button
-            fontWeight={"500"}
-            w={"auto"}
-            h={"auto"}
-            py={"10px"}
-            bg={"white"}
-            shadow={"xl"}
-            borderRadius={"8px"}
-            onClick={() => router.push("/reports/cashbox")}
-          >
-            История кассы
-          </Button>
+
           <Button
             fontWeight={"500"}
             w={"auto"}
@@ -96,6 +86,19 @@ function Main() {
           >
             Отчет по услугам
           </Button>
+
+          <Button
+            fontWeight={"500"}
+            w={"auto"}
+            h={"auto"}
+            py={"10px"}
+            bg={"white"}
+            shadow={"xl"}
+            borderRadius={"8px"}
+            onClick={() => router.push("/certs")}
+          >
+            Сертификаты
+          </Button>
           <Button
             fontWeight={"500"}
             w={"auto"}
@@ -128,18 +131,6 @@ function Main() {
             bg={"white"}
             shadow={"xl"}
             borderRadius={"8px"}
-            onClick={() => router.push("/certs")}
-          >
-            Сертификаты
-          </Button>
-          <Button
-            fontWeight={"500"}
-            w={"auto"}
-            h={"auto"}
-            py={"10px"}
-            bg={"white"}
-            shadow={"xl"}
-            borderRadius={"8px"}
             onClick={() => router.push("/doctors")}
           >
             Врачи
@@ -163,10 +154,10 @@ function Main() {
             py={"10px"}
             bg={"white"}
             shadow={"xl"}
-            onClick={() => router.push("/users")}
             borderRadius={"8px"}
+            onClick={() => router.push("/caompanies")}
           >
-            Пользователи
+            Палаты
           </Button>
         </Flex>
       </Box>

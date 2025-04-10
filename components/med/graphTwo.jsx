@@ -42,7 +42,6 @@ function GraphTwo() {
 
   useEffect(() => {
     fetchClients()
-      .then((response) => response.json())
       .then((data) => {
         const lastMonthClients = data.filter((client) => {
           const clientDate = new Date(client.createdAt);

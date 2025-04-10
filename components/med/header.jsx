@@ -25,6 +25,7 @@ function Header() {
   const [clientsCount, setClientsCount] = useState(0);
   const toast = useToast();
   const [remainingTime, setRemainingTime] = useState(3600);
+  const [reports, setReports] = useState([]);
 
   useEffect(() => {
     const updateTime = () => {
@@ -40,6 +41,19 @@ function Header() {
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      const response = await fetch("http://localhost:4000/reports");
+      const data = await response.json();
+      if (response.ok) {
+        setReports(data);
+      } else {
+        return null;
+      }
+    };
+    // fetchReports();
+  });
 
   const clients = async () => {
     try {
@@ -340,23 +354,40 @@ function Header() {
               <MenuItem onClick={() => router.push("/settings/sub-category")}>
                 Под-категории
               </MenuItem>
+              <MenuItem onClick={() => router.push("/settings/reports")}>
+                Создать категорию отчетов
+              </MenuItem>
             </MenuList>
           </Menu>
-          <Button
-            bg={"#fff"}
-            color={"#000"}
-            border={"1px solid transparent"}
-            borderRadius={"8px"}
-            fontWeight={"600"}
-            _hover={{
-              color: "#fff",
-              background: "#0052b4",
-              border: "1px solid transparent",
-            }}
-            onClick={() => router.push("/reports")}
-          >
-            Отчеты
-          </Button>
+          <Menu>
+            <MenuButton
+              as={Button}
+              bg={"#fff"}
+              color={"#000"}
+              border={"1px solid transparent"}
+              borderRadius={"8px"}
+              fontWeight={"600"}
+              _hover={{
+                color: "#fff",
+                background: "#0052b4",
+                border: "1px solid transparent",
+              }}
+              rightIcon={<ChevronDownIcon />}
+            >
+              Отчеты
+            </MenuButton>
+            <MenuList zIndex={"999"}>
+              {reports.map((report) => (
+                <>
+                  <MenuItem
+                    onClick={() => router.push(`/reports/${report.name}`)}
+                  >
+                    {report.name}
+                  </MenuItem>
+                </>
+              ))}
+            </MenuList>
+          </Menu>
           <Button
             bg={"#fff"}
             color={"#000"}
@@ -371,21 +402,6 @@ function Header() {
             onClick={() => router.push("/register/cleint")}
           >
             Запись на прием
-          </Button>
-          <Button
-            bg={"#fff"}
-            color={"#000"}
-            border={"1px solid transparent"}
-            borderRadius={"8px"}
-            fontWeight={"600"}
-            _hover={{
-              color: "#fff",
-              background: "#0052b4",
-              border: "1px solid transparent",
-            }}
-            onClick={() => router.push("/plan")}
-          >
-            Планировщик
           </Button>
         </Box>
       </Flex>
