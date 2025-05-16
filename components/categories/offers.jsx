@@ -84,7 +84,7 @@ function Offers() {
       if (isEditing) {
         // Обновление
         await axios.put(
-          `http://localhost:4000/offer/edit/${editingId}`,
+          `http://192.168.1.13:4000/offer/edit/${editingId}`,
           formData
         );
         toast({
@@ -96,7 +96,7 @@ function Offers() {
         });
       } else {
         // Создание
-        await axios.post("http://localhost:4000/offer/new", formData);
+        await axios.post("http://192.168.1.13:4000/offer/new", formData);
         toast({
           title: "Услуга создана.",
           status: "success",
@@ -128,7 +128,7 @@ function Offers() {
 
   const handleDeleteoffer = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/offer/delete/${id}`);
+      await axios.delete(`http://192.168.1.13:4000/offer/delete/${id}`);
       toast({
         title: "Подкатегория удалена.",
         status: "success",

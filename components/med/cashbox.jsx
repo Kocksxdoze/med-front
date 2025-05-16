@@ -21,7 +21,7 @@ function CashboxTable() {
   useEffect(() => {
     async function loadCashbox() {
       try {
-        const response = await fetch("http://localhost:4000/cashbox");
+        const response = await fetch("http://192.168.1.13:4000/cashbox");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }

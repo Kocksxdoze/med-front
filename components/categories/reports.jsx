@@ -84,7 +84,7 @@ function Reports() {
       if (isEditing) {
         // Обновление
         await axios.put(
-          `http://localhost:4000/report/edit/${editingId}`,
+          `http://192.168.1.13:4000/report/edit/${editingId}`,
           formData
         );
         toast({
@@ -96,7 +96,7 @@ function Reports() {
         });
       } else {
         // Создание
-        await axios.post("http://localhost:4000/report/create", formData);
+        await axios.post("http://192.168.1.13:4000/report/create", formData);
         toast({
           title: "Отчет создан.",
           status: "success",
@@ -128,7 +128,7 @@ function Reports() {
 
   const handleDeletereport = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/report/delete/${id}`);
+      await axios.delete(`http://192.168.1.13:4000/report/delete/${id}`);
       toast({
         title: "Подкатегория удалена.",
         status: "success",

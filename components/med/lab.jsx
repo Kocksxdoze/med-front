@@ -46,7 +46,7 @@ function Lab() {
 
   const loadDias = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/dias");
+      const res = await axios.get("http://192.168.1.13:4000/dias");
       setDias(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error("Ошибка при загрузке Лаборатории:", error);
@@ -75,7 +75,7 @@ function Lab() {
     try {
       if (isEditing) {
         await axios.put(
-          `http://localhost:4000/dia/update/${editingId}`,
+          `http://192.168.1.13:4000/dia/update/${editingId}`,
           formData
         );
         toast({
@@ -85,7 +85,7 @@ function Lab() {
           isClosable: true,
         });
       } else {
-        await axios.post("http://localhost:4000/dia/new", formData);
+        await axios.post("http://192.168.1.13:4000/dia/new", formData);
         toast({
           title: "Лаборатория создан.",
           status: "success",
@@ -108,7 +108,7 @@ function Lab() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/dia/delete/${id}`);
+      await axios.delete(`http://192.168.1.13:4000/dia/delete/${id}`);
       toast({
         title: "Лаборатория удалён.",
         status: "success",

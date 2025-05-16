@@ -15,7 +15,7 @@ function PatientPage() {
   useEffect(() => {
     if (id) {
       const fetchPatientData = async () => {
-        const response = await fetch(`http://localhost:4000/client/${id}`);
+        const response = await fetch(`http://192.168.1.13:4000/client/${id}`);
         const data = await response.json();
         setPatientData(data);
       };

@@ -48,7 +48,7 @@ function Cabinet() {
 
     // Уже есть загрузка клиентов...
     setLoadingClients(true);
-    fetch("http://localhost:4000/clients")
+    fetch("http://192.168.1.13:4000/clients")
       .then((res) => res.json())
       .then((data) => {
         const filteredClients = data.filter(
@@ -63,7 +63,7 @@ function Cabinet() {
 
     // Загрузка встреч
     setLoadingApps(true);
-    fetch("http://localhost:4000/apps")
+    fetch("http://192.168.1.13:4000/apps")
       .then((res) => res.json())
       .then((data) => {
         const filteredApps = data.filter((app) => app.doctor === doctor.id);
