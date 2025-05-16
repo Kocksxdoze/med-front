@@ -4,7 +4,7 @@ import ParticlesComponent from "../../components/med/particles";
 import Header from "../../components/med/header";
 import Footer from "../../components/med/footer";
 import { Flex, Box } from "@chakra-ui/react";
-import Reports from "../../components/med/reports";
+import Reports from "../../components/categories/reports";
 
 function ReportsPage() {
   return (

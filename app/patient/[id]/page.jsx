@@ -3,13 +3,14 @@ import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Box, Button, Text } from "@chakra-ui/react";
 import { useReactToPrint } from "react-to-print";
+import { useRouter } from "next/navigation";
 
 function PatientPage() {
-  const pathname = usePathname(); // Get the current path
+  const pathname = usePathname();
   const [patientData, setPatientData] = useState(null);
+  const router = useRouter();
 
-  // Extract the patient ID from the URL path
-  const id = pathname?.split("/")[2]; // This assumes the URL is of the form "/patient/[id]"
+  const id = pathname?.split("/")[2];
 
   useEffect(() => {
     if (id) {
@@ -22,29 +23,33 @@ function PatientPage() {
     }
   }, [id]);
 
-  const printContentRef = React.useRef(); // Create a ref for content to print
+  const printContentRef = React.useRef();
 
   const handlePrint = useReactToPrint({
-    content: () => printContentRef.current, // Pass contentRef here
+    content: () => printContentRef.current,
     documentTitle: `Patient_${id}_Document`,
     onBeforeGetContent: () => {
-      // Check if there's content before trying to print
       if (!printContentRef.current) {
         console.error("No content to print");
         return false;
       }
       return true;
+      router.push("/");
     },
   });
 
   if (!patientData) return <Text>Loading...</Text>;
 
   return (
-    <Box p={5}>
-      {/* Ensure the content is rendered */}
+    <Box
+      p={5}
+      w={"100%"}
+      display={"flex"}
+      alignContent={"center"}
+      justifyContent={"center"}
+    >
       <Box ref={printContentRef}>
         {" "}
-        {/* Attach ref here */}
         <Text fontSize="2xl">Patient Information</Text>
         <Text>Name: {patientData.name}</Text>
         <Text>Surname: {patientData.surname}</Text>

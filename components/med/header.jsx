@@ -48,12 +48,10 @@ function Header() {
       const data = await response.json();
       if (response.ok) {
         setReports(data);
-      } else {
-        return null;
       }
     };
-    // fetchReports();
-  });
+    fetchReports();
+  }, []);
 
   const clients = async () => {
     try {
@@ -342,9 +340,6 @@ function Header() {
               Настройки
             </MenuButton>
             <MenuList zIndex={"999"}>
-              <MenuItem onClick={() => router.push("/settings/bases")}>
-                Филлиалы
-              </MenuItem>
               <MenuItem onClick={() => router.push("/settings/doctors")}>
                 Доктора
               </MenuItem>
@@ -354,8 +349,23 @@ function Header() {
               <MenuItem onClick={() => router.push("/settings/sub-category")}>
                 Под-категории
               </MenuItem>
+              <MenuItem onClick={() => router.push("/settings/offers")}>
+                Услуги
+              </MenuItem>
               <MenuItem onClick={() => router.push("/settings/reports")}>
                 Создать категорию отчетов
+              </MenuItem>
+              <MenuItem onClick={() => router.push("/settings/bases")}>
+                Филлиалы
+              </MenuItem>
+              <MenuItem onClick={() => router.push("/settings/app-offers")}>
+                Услуги встреч
+              </MenuItem>
+              <MenuItem onClick={() => router.push("/settings/types")}>
+                Типы встреч
+              </MenuItem>
+              <MenuItem onClick={() => router.push("/settings/benefits")}>
+                Категории льгот
               </MenuItem>
             </MenuList>
           </Menu>
@@ -377,14 +387,13 @@ function Header() {
               Отчеты
             </MenuButton>
             <MenuList zIndex={"999"}>
-              {reports.map((report) => (
-                <>
-                  <MenuItem
-                    onClick={() => router.push(`/reports/${report.name}`)}
-                  >
-                    {report.name}
-                  </MenuItem>
-                </>
+              {reports.map((report, indx) => (
+                <MenuItem
+                  key={indx}
+                  onClick={() => router.push(`/reports/${report.name}`)}
+                >
+                  {report.name}
+                </MenuItem>
               ))}
             </MenuList>
           </Menu>
@@ -399,7 +408,7 @@ function Header() {
               background: "#0052b4",
               border: "1px solid transparent",
             }}
-            onClick={() => router.push("/register/cleint")}
+            onClick={() => router.push("/appointment")}
           >
             Запись на прием
           </Button>

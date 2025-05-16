@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import fetcher from "../../utils/fetcher";
 import {
   Flex,
   Box,
@@ -24,15 +23,13 @@ import {
   ModalCloseButton,
   FormControl,
   FormLabel,
-  Select,
   useToast,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
 
-function SubCategories() {
-  const [subCategories, setSubCategories] = useState([]);
-  const [categories, setCategories] = useState([]); // Состояние для категорий
+function Diagnostic() {
+  const [dias, setDias] = useState([]);
   const [search, setSearch] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -40,86 +37,85 @@ function SubCategories() {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
-    categoryId: "", // categoryId будет хранить выбранную категорию
+    price: "",
+    about: "",
+    table: "",
+    analise: "",
+    ready: "",
   });
 
-  // Загрузка подкатегорий
-  async function loadSubCategories() {
-    const data = await fetcher("sub");
-    setSubCategories(Array.isArray(data) ? data : []);
-  }
-
-  // Загрузка категорий
-  async function loadCategories() {
-    const data = await fetcher("categories");
-    setCategories(Array.isArray(data) ? data : []);
-  }
+  const loadDias = async () => {
+    try {
+      const res = await axios.get("http://localhost:4000/dias");
+      setDias(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error("Ошибка при загрузке диагнозов:", error);
+    }
+  };
 
   useEffect(() => {
-    loadSubCategories();
-    loadCategories();
+    loadDias();
   }, []);
 
-  const filteredSubCategories = subCategories.filter((subCategory) =>
-    [subCategory?.id, subCategory?.name, subCategory?.createdAt].some((field) =>
+  const filteredDias = dias.filter((dia) =>
+    [
+      dia?.id,
+      dia?.name,
+      dia?.price,
+      dia?.about,
+      dia?.table,
+      dia?.analise,
+      dia?.ready,
+    ].some((field) =>
       field?.toString().toLowerCase().includes(search.toLowerCase())
     )
   );
 
-  const handleCreateSubCategory = async () => {
+  const handleCreateOrUpdate = async () => {
     try {
       if (isEditing) {
         await axios.put(
-          `http://localhost:4000/sub/edit/${editingId}`,
+          `http://localhost:4000/dia/update/${editingId}`,
           formData
         );
         toast({
-          title: "Подкатегория обновлена.",
+          title: "Диагноз обновлён.",
           status: "success",
           duration: 3000,
           isClosable: true,
-          position: "bottom-right",
         });
       } else {
-        await axios.post("http://localhost:4000/sub/new", formData);
+        await axios.post("http://localhost:4000/dia/new", formData);
         toast({
-          title: "Подкатегория создана.",
+          title: "Диагноз создан.",
           status: "success",
           duration: 3000,
           isClosable: true,
-          position: "bottom-right",
         });
       }
-
-      loadSubCategories();
-      onClose();
-      setFormData({
-        name: "",
-        categoryId: "", // Сброс после создания
-      });
+      loadDias();
+      handleClose();
     } catch (error) {
       toast({
-        title: "Ошибка при создании подкатегории.",
+        title: "Ошибка при сохранении.",
         description: error.response?.data?.message || "Попробуйте снова позже.",
         status: "error",
         duration: 4000,
         isClosable: true,
       });
-      console.error("Ошибка при создании подкатегории:", error);
     }
   };
 
-  const handleDeleteSubCategory = async (id) => {
+  const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/sub/delete/${id}`);
+      await axios.delete(`http://localhost:4000/dia/delete/${id}`);
       toast({
-        title: "Подкатегория удалена.",
+        title: "Диагноз удалён.",
         status: "success",
         duration: 3000,
         isClosable: true,
-        position: "bottom-right",
       });
-      loadSubCategories();
+      loadDias();
     } catch (error) {
       toast({
         title: "Ошибка при удалении.",
@@ -128,16 +124,15 @@ function SubCategories() {
         duration: 4000,
         isClosable: true,
       });
-      console.error("Ошибка при удалении подкатегории:", error);
     }
   };
 
-  const handleEditSubCategory = (subCategory) => {
+  const handleEdit = (dia) => {
     setIsEditing(true);
-    setEditingId(subCategory.id);
+    setEditingId(dia.id);
     setFormData({
-      name: subCategory.name,
-      categoryId: subCategory.categoryId, // Присваиваем id категории
+      name: dia.name,
+      description: dia.description,
     });
     onOpen();
   };
@@ -146,16 +141,13 @@ function SubCategories() {
     onClose();
     setIsEditing(false);
     setEditingId(null);
-    setFormData({
-      name: "",
-      categoryId: "", // Сброс формы
-    });
+    setFormData({ name: "", description: "" });
   };
 
   return (
     <Box p={4} borderRadius="16px" w="100%" overflowX="auto" bg="#fff">
       <Flex justify="space-between" mb={4} flexWrap="wrap" gap={4}>
-        <InputGroup w={{ subCategory: "100%", md: "50%" }}>
+        <InputGroup w={{ base: "100%", md: "50%" }}>
           <Input
             placeholder="Поиск по любому параметру"
             color="black"
@@ -170,7 +162,7 @@ function SubCategories() {
           </InputRightElement>
         </InputGroup>
         <Button colorScheme="blue" onClick={onOpen}>
-          Создать подкатегорию
+          Создать диагноз
         </Button>
       </Flex>
 
@@ -178,37 +170,39 @@ function SubCategories() {
         <Table variant="striped" size="sm" width="100%">
           <Thead position="sticky" top={0} zIndex={1} bg="white">
             <Tr>
-              <Th>id</Th>
-              <Th>Имя подкатегории</Th>
-              <Th>Категория</Th>
-              <Th>Количество услуг</Th>
-              <Th>Создан</Th>
-              <Th>Действия</Th>
+              <Th>ID</Th>
+              <Th>Название</Th>
+              <Th>Цена</Th>
+              <Th>Описание</Th>
+              <Th>Таблица диагноза для клиента</Th>
+              <Th>Анализ</Th>
+              <Th>Готовность</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {filteredSubCategories.map((subCategory) => (
-              <Tr key={subCategory.id}>
-                <Td>{subCategory.id}</Td>
-                <Td>{subCategory.name}</Td>
-                <Td>{subCategory.category.categoryName}</Td>
-                <Td>{subCategory.offers?.length || 0}</Td>
-                <Td>
-                  {new Date(subCategory.createdAt).toISOString().split("T")[0]}
-                </Td>
+            {filteredDias.map((dia) => (
+              <Tr key={dia.id}>
+                <Td>{dia.id}</Td>
+                <Td>{dia.name}</Td>
+                <Td>{dia.price}</Td>
+                <Td>{dia.about}</Td>
+                <Td>{dia.table}</Td>
+                <Td>{dia.analise}</Td>
+                <Td>{dia.ready}</Td>
+
                 <Td>
                   <Flex gap={2}>
                     <Button
                       size="xs"
                       colorScheme="yellow"
-                      onClick={() => handleEditSubCategory(subCategory)}
+                      onClick={() => handleEdit(dia)}
                     >
                       Редактировать
                     </Button>
                     <Button
                       size="xs"
                       colorScheme="red"
-                      onClick={() => handleDeleteSubCategory(subCategory.id)}
+                      onClick={() => handleDelete(dia.id)}
                     >
                       Удалить
                     </Button>
@@ -221,41 +215,35 @@ function SubCategories() {
       </TableContainer>
 
       {/* Модальное окно */}
-      <Modal isOpen={isOpen} onClose={onClose} size="2xl">
+      <Modal isOpen={isOpen} onClose={handleClose} size="2xl">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Создание подкатегории</ModalHeader>
+          <ModalHeader>
+            {isEditing ? "Редактировать диагноз" : "Создать диагноз"}
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl mb={3}>
-              <FormLabel>Имя подкатегории</FormLabel>
+              <FormLabel>Название</FormLabel>
               <Input
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                placeholder="Введите имя подкатегории"
+                placeholder="Введите название диагноза"
               />
             </FormControl>
-
             <FormControl mb={3}>
-              <FormLabel>Категория</FormLabel>
-              <Select
-                value={formData.categoryId}
+              <FormLabel>Описание</FormLabel>
+              <Input
+                value={formData.description}
                 onChange={(e) =>
-                  setFormData({ ...formData, categoryId: e.target.value })
+                  setFormData({ ...formData, description: e.target.value })
                 }
-                placeholder="Выберите категорию"
-              >
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.categoryName}
-                  </option>
-                ))}
-              </Select>
+                placeholder="Введите описание"
+              />
             </FormControl>
-
-            <Button colorScheme="blue" mr={3} onClick={handleCreateSubCategory}>
+            <Button colorScheme="blue" mr={3} onClick={handleCreateOrUpdate}>
               {isEditing ? "Сохранить" : "Создать"}
             </Button>
           </ModalBody>
@@ -265,4 +253,4 @@ function SubCategories() {
   );
 }
 
-export default SubCategories;
+export default Diagnostic;

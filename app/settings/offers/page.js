@@ -3,10 +3,10 @@ import React from "react";
 import Header from "../../../components/med/header";
 import Footer from "../../../components/med/footer";
 import ParticlesComponent from "../../../components/med/particles";
-import Reports from "../../../components/categories/reports";
+import Offers from "../../../components/categories/offers";
 import { Flex, Box } from "@chakra-ui/react";
 
-function ReportsPage() {
+function CategoryPage() {
   return (
     <>
       <Flex flexDir={"column"} pos={"absolute"} w={"100%"}>
@@ -29,7 +29,7 @@ function ReportsPage() {
             display={"flex"}
             justifyContent={"center"}
           >
-            <Reports />
+            <Offers />
           </Box>
         </Box>
         <Box pos={"relative"} bottom={"0"} px={"50px"} mt={"50px"} w={"100%"}>
@@ -40,4 +40,4 @@ function ReportsPage() {
   );
 }
 
-export default ReportsPage;
+export default CategoryPage;

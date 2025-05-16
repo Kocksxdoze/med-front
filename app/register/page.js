@@ -18,6 +18,7 @@ import Footer from "../../components/med/footer";
 import ParticlesComponent from "../../components/med/particles";
 import { useRouter } from "next/navigation";
 import fetcher from "../../utils/fetcher";
+import Registration from "../../components/categories/registration";
 
 function Register() {
   const formRef = useRef({});
@@ -99,6 +100,8 @@ function Register() {
                 gap={5}
               >
                 <Input
+                  _hover={{ border: "1px solid #0052b4" }}
+                  border={"1px solid #000"}
                   name="surname"
                   onChange={change}
                   required
@@ -106,6 +109,8 @@ function Register() {
                   placeholder="Фамилия"
                 />
                 <Input
+                  _hover={{ border: "1px solid #0052b4" }}
+                  border={"1px solid #000"}
                   name="name"
                   onChange={change}
                   required
@@ -113,6 +118,8 @@ function Register() {
                   placeholder="Имя"
                 />
                 <Input
+                  _hover={{ border: "1px solid #0052b4" }}
+                  border={"1px solid #000"}
                   onChange={change}
                   name="lastName"
                   required
@@ -122,41 +129,65 @@ function Register() {
 
                 <chakra.span display={"flex"} alignItems={"center"} gap={5}>
                   <Input
+                    _hover={{ border: "1px solid #0052b4" }}
+                    border={"1px solid #000"}
                     w={"100%"}
                     name="dateBirth"
                     onChange={change}
                     type="date"
                   />
                   <Text>Пол</Text>
-                  <RadioGroup onChange={setValue2} value={value2}>
+                  <RadioGroup Group onChange={setValue2} value={value2}>
                     <Stack direction="row">
-                      <Radio value="1">Мужской</Radio>
-                      <Radio value="0">Женский</Radio>
+                      <Radio border={"1px solid #000"} value="1">
+                        Мужской
+                      </Radio>
+                      <Radio border={"1px solid #000"} value="0">
+                        Женский
+                      </Radio>
                     </Stack>
                   </RadioGroup>
                 </chakra.span>
                 <chakra.span display={"flex"} alignItems={"center"} gap={5}>
                   <Input
+                    _hover={{ border: "1px solid #0052b4" }}
+                    border={"1px solid #000"}
                     name="homePhone"
                     onChange={change}
                     w={"100%"}
                     placeholder="Домашний телефон"
                   />
                   <Input
+                    _hover={{ border: "1px solid #0052b4" }}
+                    border={"1px solid #000"}
                     name="phoneNumber"
                     onChange={change}
                     w={"100%"}
                     placeholder="Мобильный телефон"
                   />
-                  <Checkbox>СМС</Checkbox>
+                  <Checkbox
+                    colorScheme="blackAlpha"
+                    iconColor="white"
+                    sx={{
+                      ".chakra-checkbox__control": {
+                        borderColor: "black",
+                      },
+                    }}
+                  >
+                    <Text color={"#000"}>СМС</Text>
+                  </Checkbox>
                 </chakra.span>
                 <Input
+                  _hover={{ border: "1px solid #0052b4" }}
+                  border={"1px solid #000"}
                   w={"100%"}
                   name="email"
                   onChange={change}
                   placeholder="Email"
                 />
                 <Input
+                  _hover={{ border: "1px solid #0052b4" }}
+                  border={"1px solid #000"}
                   w={"100%"}
                   onChange={change}
                   name="socialPlace"
@@ -172,24 +203,32 @@ function Register() {
                 gap={5}
               >
                 <Input
+                  _hover={{ border: "1px solid #0052b4" }}
+                  border={"1px solid #000"}
                   w={"100%"}
                   name="republic"
                   onChange={change}
                   placeholder="Республика"
                 />
                 <Input
+                  _hover={{ border: "1px solid #0052b4" }}
+                  border={"1px solid #000"}
                   w={"100%"}
                   name="region"
                   onChange={change}
                   placeholder="Регион"
                 />
                 <Input
+                  _hover={{ border: "1px solid #0052b4" }}
+                  border={"1px solid #000"}
                   w={"100%"}
                   name="street"
                   onChange={change}
                   placeholder="Район"
                 />
                 <Input
+                  _hover={{ border: "1px solid #0052b4" }}
+                  border={"1px solid #000"}
                   w={"100%"}
                   name="addres"
                   onChange={change}
@@ -198,27 +237,45 @@ function Register() {
 
                 <chakra.span display={"flex"} alignItems={"center"} gap={5}>
                   <Input
+                    _hover={{ border: "1px solid #0052b4" }}
+                    border={"1px solid #000"}
                     w={"100%"}
                     name="passportSeries"
                     onChange={change}
                     placeholder="Серия"
                   />
                   <Input
+                    _hover={{ border: "1px solid #0052b4" }}
+                    border={"1px solid #000"}
                     w={"100%"}
                     name="passportNum"
                     onChange={change}
                     placeholder="Номер"
                   />
-                  <Input w={"100%"} placeholder="Дата выдачи" />
-                  <Input w={"100%"} placeholder="Срок годности" />
+                  <Input
+                    _hover={{ border: "1px solid #0052b4" }}
+                    border={"1px solid #000"}
+                    w={"100%"}
+                    placeholder="Дата выдачи"
+                  />
+                  <Input
+                    _hover={{ border: "1px solid #0052b4" }}
+                    border={"1px solid #000"}
+                    w={"100%"}
+                    placeholder="Срок годности"
+                  />
                 </chakra.span>
                 <Input
+                  _hover={{ border: "1px solid #0052b4" }}
+                  border={"1px solid #000"}
                   w={"100%"}
                   name="passportGiver"
                   onChange={change}
                   placeholder="Кем выдан"
                 />
                 <Input
+                  _hover={{ border: "1px solid #0052b4" }}
+                  border={"1px solid #000"}
                   w={"100%"}
                   name="work"
                   onChange={change}
@@ -241,12 +298,16 @@ function Register() {
                 gap={5}
               >
                 <Input
+                  _hover={{ border: "1px solid #0052b4" }}
+                  border={"1px solid #000"}
                   w={"100%"}
                   name="discount"
                   onChange={change}
                   placeholder="Скидка"
                 />
                 <Input
+                  _hover={{ border: "1px solid #0052b4" }}
+                  border={"1px solid #000"}
                   w={"100%"}
                   name="benefitCategory"
                   onChange={change}
@@ -260,12 +321,16 @@ function Register() {
                 gap={5}
               >
                 <Input
+                  _hover={{ border: "1px solid #0052b4" }}
+                  border={"1px solid #000"}
                   w={"100%"}
                   name="doctor"
                   onChange={change}
                   placeholder="ФИО врача или номер"
                 />
                 <Input
+                  _hover={{ border: "1px solid #0052b4" }}
+                  border={"1px solid #000"}
                   w={"100%"}
                   name="doctorId"
                   onChange={change}
@@ -283,10 +348,16 @@ function Register() {
                   {/* Группа радиокнопок */}
                   <RadioGroup onChange={setValue} value={value}>
                     <Stack direction="row" spacing={5}>
-                      <Radio onChange={change} name="navigation" value="help">
+                      <Radio
+                        border={"1px solid #000"}
+                        onChange={change}
+                        name="navigation"
+                        value="help"
+                      >
                         Экстренная помощь
                       </Radio>
                       <Radio
+                        border={"1px solid #000"}
                         onChange={change}
                         name="navigation"
                         value="insurance"
@@ -294,6 +365,7 @@ function Register() {
                         Страхование
                       </Radio>
                       <Radio
+                        border={"1px solid #000"}
                         onChange={change}
                         name="navigation"
                         value="history"
@@ -306,23 +378,55 @@ function Register() {
                   {/* Инпуты для "Страхование" */}
                   {value === "insurance" && (
                     <Stack mt={3} spacing={2}>
-                      <Input placeholder="Компания" />
-                      <Input placeholder="Номер полиса" />
-                      <Input placeholder="Баланс полиса" />
+                      <Input
+                        _hover={{ border: "1px solid #0052b4" }}
+                        border={"1px solid #000"}
+                        placeholder="Компания"
+                      />
+                      <Input
+                        _hover={{ border: "1px solid #0052b4" }}
+                        border={"1px solid #000"}
+                        placeholder="Номер полиса"
+                      />
+                      <Input
+                        _hover={{ border: "1px solid #0052b4" }}
+                        border={"1px solid #000"}
+                        placeholder="Баланс полиса"
+                      />
                     </Stack>
                   )}
 
                   {/* Инпуты для "Оформление новой истории болезни" */}
                   {value === "history" && (
                     <Stack mt={3} spacing={2}>
-                      <Input placeholder="Тип карты" />
-                      <Input placeholder="№ Истории болезни" />
-                      <Input placeholder="Дата открытия" />
-                      <Input placeholder="Ответственный врач" />
+                      <Input
+                        _hover={{ border: "1px solid #0052b4" }}
+                        border={"1px solid #000"}
+                        placeholder="Тип карты"
+                      />
+                      <Input
+                        _hover={{ border: "1px solid #0052b4" }}
+                        border={"1px solid #000"}
+                        placeholder="№ Истории болезни"
+                      />
+                      <Input
+                        _hover={{ border: "1px solid #0052b4" }}
+                        border={"1px solid #000"}
+                        placeholder="Дата открытия"
+                      />
+                      <Input
+                        _hover={{ border: "1px solid #0052b4" }}
+                        border={"1px solid #000"}
+                        placeholder="Ответственный врач"
+                      />
                     </Stack>
                   )}
                 </chakra.div>
               </chakra.span>
+            </Flex>
+
+            <Flex px={"100px"} gap={10} w={"100%"} alignItems={"flex-start"}>
+              <Registration />
             </Flex>
 
             <Flex

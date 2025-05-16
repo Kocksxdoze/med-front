@@ -95,33 +95,9 @@ function Main() {
             bg={"white"}
             shadow={"xl"}
             borderRadius={"8px"}
-            onClick={() => router.push("/certs")}
-          >
-            Сертификаты
-          </Button>
-          <Button
-            fontWeight={"500"}
-            w={"auto"}
-            h={"auto"}
-            py={"10px"}
-            bg={"white"}
-            shadow={"xl"}
-            borderRadius={"8px"}
-            onClick={() => router.push("/salary")}
-          >
-            Зарплата
-          </Button>
-          <Button
-            fontWeight={"500"}
-            w={"auto"}
-            h={"auto"}
-            py={"10px"}
-            bg={"white"}
-            shadow={"xl"}
-            borderRadius={"8px"}
             onClick={() => router.push("/cards")}
           >
-            Карты
+            Промокоды
           </Button>
           <Button
             fontWeight={"500"}
@@ -131,7 +107,7 @@ function Main() {
             bg={"white"}
             shadow={"xl"}
             borderRadius={"8px"}
-            onClick={() => router.push("/doctors")}
+            onClick={() => router.push("/settings/doctors")}
           >
             Врачи
           </Button>

@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import fetchClients from "../../utils/fetchClients";
 import {
@@ -14,10 +15,12 @@ import {
   InputRightElement,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
+import { useRouter } from "next/navigation";
 
 function Patients() {
   const [patients, setPatients] = useState([]);
   const [search, setSearch] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     async function loadPatients() {
@@ -83,7 +86,12 @@ function Patients() {
           </Thead>
           <Tbody>
             {filteredPatients.map((patient) => (
-              <Tr key={patient.id}>
+              <Tr
+                key={patient.id}
+                onClick={() => router.push(`/patient/${patient.id}`)}
+                _hover={{ backgroundColor: "#fff" }}
+                cursor={"pointer"}
+              >
                 <Td>{patient.id}</Td>
                 <Td>{`${patient.surname} ${patient.name} ${patient.lastName}`}</Td>
                 <Td>{patient.phoneNumber}</Td>

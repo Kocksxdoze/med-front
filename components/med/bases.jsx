@@ -172,7 +172,7 @@ function Bases() {
               <Tr key={base.id}>
                 <Td>{base.id}</Td>
                 <Td>{base.name}</Td>
-                <Td>{base.bases?.length || 0}</Td>
+                <Td>{base.doctors?.length || 0}</Td>
                 <Td>{new Date(base.createdAt).toISOString().split("T")[0]}</Td>
                 <Td>
                   <Flex gap={2}>

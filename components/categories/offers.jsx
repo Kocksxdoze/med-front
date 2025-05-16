@@ -30,9 +30,9 @@ import {
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
 
-function SubCategories() {
-  const [subCategories, setSubCategories] = useState([]);
-  const [categories, setCategories] = useState([]); // Состояние для категорий
+function Offers() {
+  const [offers, setoffers] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -40,78 +40,95 @@ function SubCategories() {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
-    categoryId: "", // categoryId будет хранить выбранную категорию
+    sum: "",
+    subCategoryId: "",
+    doctorId: "",
+    createdAt: "",
   });
 
   // Загрузка подкатегорий
-  async function loadSubCategories() {
-    const data = await fetcher("sub");
-    setSubCategories(Array.isArray(data) ? data : []);
+  async function loadoffers() {
+    const data = await fetcher("offers");
+    setoffers(Array.isArray(data) ? data : []);
   }
 
   // Загрузка категорий
   async function loadCategories() {
-    const data = await fetcher("categories");
+    const data = await fetcher("doctors");
     setCategories(Array.isArray(data) ? data : []);
   }
 
   useEffect(() => {
-    loadSubCategories();
+    loadoffers();
     loadCategories();
   }, []);
 
-  const filteredSubCategories = subCategories.filter((subCategory) =>
-    [subCategory?.id, subCategory?.name, subCategory?.createdAt].some((field) =>
+  const filteredoffers = offers.filter((offer) =>
+    [offer?.id, offer?.name, offer?.createdAt].some((field) =>
       field?.toString().toLowerCase().includes(search.toLowerCase())
     )
   );
 
-  const handleCreateSubCategory = async () => {
+  const handleCreateoffer = async () => {
+    if (!formData.name || formData.name.trim() === "") {
+      toast({
+        title: "Имя услуги обязательно.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+    // Далее отправляем запрос
     try {
       if (isEditing) {
+        // Обновление
         await axios.put(
-          `http://localhost:4000/sub/edit/${editingId}`,
+          `http://localhost:4000/offer/edit/${editingId}`,
           formData
         );
         toast({
-          title: "Подкатегория обновлена.",
+          title: "Услуга обновлена.",
           status: "success",
           duration: 3000,
           isClosable: true,
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://localhost:4000/sub/new", formData);
+        // Создание
+        await axios.post("http://localhost:4000/offer/new", formData);
         toast({
-          title: "Подкатегория создана.",
+          title: "Услуга создана.",
           status: "success",
           duration: 3000,
           isClosable: true,
           position: "bottom-right",
         });
       }
-
-      loadSubCategories();
+      loadoffers();
       onClose();
       setFormData({
         name: "",
-        categoryId: "", // Сброс после создания
+        sum: "",
+        subCategoryId: "",
+        doctorId: "",
+        createdAt: "",
       });
     } catch (error) {
       toast({
-        title: "Ошибка при создании подкатегории.",
+        title: "Ошибка при сохранении услуги.",
         description: error.response?.data?.message || "Попробуйте снова позже.",
         status: "error",
         duration: 4000,
         isClosable: true,
       });
-      console.error("Ошибка при создании подкатегории:", error);
+      console.error("Ошибка при сохранении услуги:", error);
     }
   };
 
-  const handleDeleteSubCategory = async (id) => {
+  const handleDeleteoffer = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/sub/delete/${id}`);
+      await axios.delete(`http://localhost:4000/offer/delete/${id}`);
       toast({
         title: "Подкатегория удалена.",
         status: "success",
@@ -119,7 +136,7 @@ function SubCategories() {
         isClosable: true,
         position: "bottom-right",
       });
-      loadSubCategories();
+      loadoffers();
     } catch (error) {
       toast({
         title: "Ошибка при удалении.",
@@ -128,34 +145,39 @@ function SubCategories() {
         duration: 4000,
         isClosable: true,
       });
-      console.error("Ошибка при удалении подкатегории:", error);
+      console.error("Ошибка при удалении услуги:", error);
     }
   };
 
-  const handleEditSubCategory = (subCategory) => {
+  const handleEditoffer = (offer) => {
     setIsEditing(true);
-    setEditingId(subCategory.id);
+    setEditingId(offer.id);
     setFormData({
-      name: subCategory.name,
-      categoryId: subCategory.categoryId, // Присваиваем id категории
+      name: offer.name,
+      sum: offer.sum,
+      subCategoryId: offer.subCategoryId || "",
+      doctorId: offer.doctorId || "",
+      createdAt: offer.createdAt || "",
     });
     onOpen();
   };
-
   const handleClose = () => {
     onClose();
     setIsEditing(false);
     setEditingId(null);
     setFormData({
       name: "",
-      categoryId: "", // Сброс формы
+      sum: "",
+      subCategoryId: "",
+      doctorId: "",
+      createdAt: "",
     });
   };
 
   return (
     <Box p={4} borderRadius="16px" w="100%" overflowX="auto" bg="#fff">
-      <Flex justify="space-between" mb={4} flexWrap="wrap" gap={4}>
-        <InputGroup w={{ subCategory: "100%", md: "50%" }}>
+      <Flex justify="space-between" mb={4} gap={4}>
+        <InputGroup w={{ base: "100%", md: "50%" }}>
           <Input
             placeholder="Поиск по любому параметру"
             color="black"
@@ -169,8 +191,8 @@ function SubCategories() {
             <SearchIcon color="black.500" />
           </InputRightElement>
         </InputGroup>
-        <Button colorScheme="blue" onClick={onOpen}>
-          Создать подкатегорию
+        <Button w={"auto"} colorScheme="blue" onClick={onOpen}>
+          Создать
         </Button>
       </Flex>
 
@@ -179,36 +201,35 @@ function SubCategories() {
           <Thead position="sticky" top={0} zIndex={1} bg="white">
             <Tr>
               <Th>id</Th>
-              <Th>Имя подкатегории</Th>
-              <Th>Категория</Th>
-              <Th>Количество услуг</Th>
+              <Th>Название услуги</Th>
+              <Th>Стоимость услуги</Th>
+              <Th>Под-категория</Th>
+              <Th>Доктор</Th>
               <Th>Создан</Th>
-              <Th>Действия</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {filteredSubCategories.map((subCategory) => (
-              <Tr key={subCategory.id}>
-                <Td>{subCategory.id}</Td>
-                <Td>{subCategory.name}</Td>
-                <Td>{subCategory.category.categoryName}</Td>
-                <Td>{subCategory.offers?.length || 0}</Td>
-                <Td>
-                  {new Date(subCategory.createdAt).toISOString().split("T")[0]}
-                </Td>
+            {filteredoffers.map((offer) => (
+              <Tr key={offer.id}>
+                <Td>{offer.id}</Td>
+                <Td>{offer.name}</Td>
+                <Td>{offer.sum}</Td>
+                <Td>{offer.subCategory.name}</Td>
+                <Td>{offer.name}</Td>
+                <Td>{new Date(offer.createdAt).toISOString().split("T")[0]}</Td>
                 <Td>
                   <Flex gap={2}>
                     <Button
                       size="xs"
                       colorScheme="yellow"
-                      onClick={() => handleEditSubCategory(subCategory)}
+                      onClick={() => handleEditoffer(offer)}
                     >
                       Редактировать
                     </Button>
                     <Button
                       size="xs"
                       colorScheme="red"
-                      onClick={() => handleDeleteSubCategory(subCategory.id)}
+                      onClick={() => handleDeleteoffer(offer.id)}
                     >
                       Удалить
                     </Button>
@@ -224,38 +245,60 @@ function SubCategories() {
       <Modal isOpen={isOpen} onClose={onClose} size="2xl">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Создание подкатегории</ModalHeader>
+          <ModalHeader>Создание услуги</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl mb={3}>
-              <FormLabel>Имя подкатегории</FormLabel>
+              <FormLabel>Название услуги</FormLabel>
               <Input
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                placeholder="Введите имя подкатегории"
+                placeholder="Введите название услуги"
               />
             </FormControl>
 
             <FormControl mb={3}>
-              <FormLabel>Категория</FormLabel>
-              <Select
-                value={formData.categoryId}
+              <FormLabel>Стоимость услуги</FormLabel>
+              <Input
+                value={formData.sum}
                 onChange={(e) =>
-                  setFormData({ ...formData, categoryId: e.target.value })
+                  setFormData({ ...formData, sum: e.target.value })
                 }
-                placeholder="Выберите категорию"
+                placeholder="Стоимость услуги"
+              />
+            </FormControl>
+
+            <FormControl mb={3}>
+              <FormLabel>Принадлежность подкатегории</FormLabel>
+              <Input
+                value={formData.subCategoryId}
+                onChange={(e) =>
+                  setFormData({ ...formData, subCategoryId: e.target.value })
+                }
+                placeholder="Принадлежность подкатегории"
+              />
+            </FormControl>
+
+            <FormControl mb={3}>
+              <FormLabel>Доктор</FormLabel>
+              <Select
+                value={formData.doctorId}
+                onChange={(e) =>
+                  setFormData({ ...formData, doctorId: e.target.value })
+                }
+                placeholder="Выберите доктора"
               >
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.categoryName}
+                {categories.map((doc) => (
+                  <option key={doc.id} value={doc.id}>
+                    {doc.fullName}
                   </option>
                 ))}
               </Select>
             </FormControl>
 
-            <Button colorScheme="blue" mr={3} onClick={handleCreateSubCategory}>
+            <Button colorScheme="blue" mr={3} onClick={handleCreateoffer}>
               {isEditing ? "Сохранить" : "Создать"}
             </Button>
           </ModalBody>
@@ -265,4 +308,4 @@ function SubCategories() {
   );
 }
 
-export default SubCategories;
+export default Offers;
