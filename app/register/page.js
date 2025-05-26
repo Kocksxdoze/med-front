@@ -34,7 +34,7 @@ function Register() {
     const formData = { ...formRef.current, sex: value2 };
 
     try {
-      const response = await fetch("http://localhost:4000/client/create", {
+      const response = await fetch("http://192.168.1.13:4000/client/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

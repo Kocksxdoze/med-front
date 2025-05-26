@@ -68,7 +68,7 @@ function Palate() {
     try {
       if (isEditing) {
         await axios.put(
-          `http://localhost:4000/palate/edit/${editingId}`,
+          `http://192.168.1.13:4000/palate/edit/${editingId}`,
           formData
         );
         toast({
@@ -79,7 +79,7 @@ function Palate() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://localhost:4000/palate/new", formData);
+        await axios.post("http://192.168.1.13:4000/palate/new", formData);
         toast({
           title: "Филиал создан.",
           status: "success",
@@ -112,7 +112,7 @@ function Palate() {
 
   const handleDeleteBase = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/palate/delete/${id}`);
+      await axios.delete(`http://192.168.1.13:4000/palate/delete/${id}`);
       toast({
         title: "Филиал удалён.",
         status: "success",

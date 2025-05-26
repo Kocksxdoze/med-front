@@ -60,7 +60,7 @@ function Benefit() {
     try {
       if (isEditing) {
         await axios.put(
-          `http://localhost:4000/benefit/update/${editingId}`,
+          `http://192.168.1.13:4000/benefit/update/${editingId}`,
           formData
         );
         toast({
@@ -71,7 +71,7 @@ function Benefit() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://localhost:4000/benefit/new", formData);
+        await axios.post("http://192.168.1.13:4000/benefit/new", formData);
         toast({
           title: "Льгота создан.",
           status: "success",
@@ -101,7 +101,7 @@ function Benefit() {
 
   const handleDeleteBase = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/benefit/delete/${id}`);
+      await axios.delete(`http://192.168.1.13:4000/benefit/delete/${id}`);
       toast({
         title: "Льгота удалён.",
         status: "success",
