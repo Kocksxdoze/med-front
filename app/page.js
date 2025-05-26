@@ -60,7 +60,7 @@ function Main() {
             borderRadius={"8px"}
             onClick={() => router.push("/reports/lab")}
           >
-            Отчет по лаб
+            Отчеты по лаборатории
           </Button>
           <Button
             fontWeight={"500"}
@@ -72,7 +72,7 @@ function Main() {
             borderRadius={"8px"}
             onClick={() => router.push("/reports/doctors")}
           >
-            Отчет по врачам
+            Отчеты по врачам
           </Button>
           <Button
             fontWeight={"500"}
@@ -84,7 +84,7 @@ function Main() {
             borderRadius={"8px"}
             onClick={() => router.push("/reports/offers")}
           >
-            Отчет по услугам
+            Отчеты по услугам
           </Button>
 
           <Button
@@ -95,7 +95,7 @@ function Main() {
             bg={"white"}
             shadow={"xl"}
             borderRadius={"8px"}
-            onClick={() => router.push("/cards")}
+            onClick={() => router.push("/promocodes")}
           >
             Промокоды
           </Button>
@@ -119,7 +119,7 @@ function Main() {
             bg={"white"}
             shadow={"xl"}
             borderRadius={"8px"}
-            onClick={() => router.push("/caompanies")}
+            onClick={() => router.push("/settings/bases")}
           >
             Компании
           </Button>
@@ -131,7 +131,7 @@ function Main() {
             bg={"white"}
             shadow={"xl"}
             borderRadius={"8px"}
-            onClick={() => router.push("/caompanies")}
+            onClick={() => router.push("/palates")}
           >
             Палаты
           </Button>

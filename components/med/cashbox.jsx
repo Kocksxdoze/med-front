@@ -1,4 +1,6 @@
+"use client";
 import React, { useState, useEffect } from "react";
+import fetchClients from "../../utils/fetchClients";
 import {
   Box,
   Input,
@@ -13,34 +15,28 @@ import {
   InputRightElement,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
+import { useRouter } from "next/navigation";
 
-function CashboxTable() {
-  const [cashboxData, setCashboxData] = useState([]);
+function Cashbox() {
+  const [patients, setPatients] = useState([]);
   const [search, setSearch] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
-    async function loadCashbox() {
-      try {
-        const response = await fetch("http://192.168.1.13:4000/cashbox");
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
-        setCashboxData(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error("Error fetching cashbox data:", error);
-      }
+    async function loadPatients() {
+      const data = await fetchClients();
+      setPatients(Array.isArray(data) ? data : []);
     }
-    loadCashbox();
+    loadPatients();
   }, []);
 
-  const filteredCashbox = cashboxData.filter((item) =>
+  const filteredPatients = patients.filter((patient) =>
     [
-      item?.id,
-      item?.clientId,
-      item?.doctorId,
-      item?.payment,
-      item?.status,
+      patient?.id,
+      patient?.name,
+      patient?.surname,
+      patient?.lastname,
+      patient?.createdAt,
     ].some((field) =>
       field?.toString().toLowerCase().includes(search.toLowerCase())
     )
@@ -75,28 +71,35 @@ function CashboxTable() {
           <Thead position="sticky" top={0} zIndex={1} bg="white">
             <Tr>
               <Th minWidth="auto">ID</Th>
-              <Th minWidth="auto">ID Клиента</Th>
-              <Th minWidth="auto">ID Доктора</Th>
-              <Th minWidth="auto">Сумма</Th>
-              <Th minWidth="auto">Скидка</Th>
-              <Th minWidth="auto">Дата</Th>
-              <Th minWidth="auto">Способ оплаты</Th>
+              <Th minWidth="auto">Ф.И.О.</Th>
+              <Th minWidth="auto">Номер</Th>
+              <Th minWidth="auto">Дата рождения</Th>
+              <Th minWidth="auto">Баланс</Th>
               <Th minWidth="auto">Долг</Th>
-              <Th minWidth="auto">Статус</Th>
+              <Th minWidth="auto">Категория льготы</Th>
+              <Th minWidth="auto">Скидка</Th>
+              <Th minWidth="auto">Доктор</Th>
+              <Th minW={"auto"}>Кол-во Услуг</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {filteredCashbox.map((item) => (
-              <Tr key={item.id}>
-                <Td>{item.id}</Td>
-                <Td>{item.clientId}</Td>
-                <Td>{item.doctorId}</Td>
-                <Td>{item.sum}</Td>
-                <Td>{item.discount}</Td>
-                <Td>{new Date(item.date).toLocaleDateString()}</Td>
-                <Td>{item.payment}</Td>
-                <Td>{item.debt !== null ? item.debt : "0"}</Td>
-                <Td>{item.status === 1 ? "Оплачено" : "Не оплачено"}</Td>
+            {filteredPatients.map((patient) => (
+              <Tr
+                key={patient.id}
+                onClick={() => router.push(`/patient/${patient.id}`)}
+                _hover={{ backgroundColor: "#fff" }}
+                cursor={"pointer"}
+              >
+                <Td>{patient.id}</Td>
+                <Td>{`${patient.surname} ${patient.name} ${patient.lastName}`}</Td>
+                <Td>{patient.phoneNumber}</Td>
+                <Td>{new Date(patient.dateBirth).toLocaleDateString()}</Td>
+                <Td>{patient.balance}</Td>
+                <Td>{patient.debt}</Td>
+                <Td>{patient.benefitCategory}</Td>
+                <Td>{patient.discount}</Td>
+                <Td>{patient.doctorId}</Td>
+                <Td>{patient.offers.length}</Td>
               </Tr>
             ))}
           </Tbody>
@@ -106,4 +109,4 @@ function CashboxTable() {
   );
 }
 
-export default CashboxTable;
+export default Cashbox;

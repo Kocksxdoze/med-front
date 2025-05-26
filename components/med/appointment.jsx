@@ -69,11 +69,11 @@ function Appointment() {
   const loadData = async () => {
     try {
       const [types, benefits, offers, doctors, apps] = await Promise.all([
-        safeGet("http://192.168.1.13:4000/types"),
-        safeGet("http://192.168.1.13:4000/benefits"),
-        safeGet("http://192.168.1.13:4000/offers"),
-        safeGet("http://192.168.1.13:4000/doctors"),
-        safeGet("http://192.168.1.13:4000/apps"),
+        safeGet("http://localhost:4000/types"),
+        safeGet("http://localhost:4000/benefits"),
+        safeGet("http://localhost:4000/offers"),
+        safeGet("http://localhost:4000/doctors"),
+        safeGet("http://localhost:4000/apps"),
       ]);
 
       setTypes(types);
@@ -81,12 +81,16 @@ function Appointment() {
       setOffers(offers);
       setDoctors(doctors);
 
+      const now = new Date();
+
       setAppointments(
-        apps.map((item) => ({
-          title: `${item.surname} ${item.name}`,
-          start: item.timeStart,
-          end: item.timeEnd,
-        }))
+        apps
+          .filter((item) => new Date(item.timeStart) >= now)
+          .map((item) => ({
+            title: `${item.surname} ${item.name}`,
+            start: item.timeStart,
+            end: item.timeEnd,
+          }))
       );
     } catch (err) {
       console.error("Ошибка загрузки данных:", err);
@@ -109,7 +113,7 @@ function Appointment() {
   const handleSubmit = async () => {
     try {
       const response = await axios.post(
-        "http://192.168.1.13:4000/app/new",
+        "http://localhost:4000/app/new",
         formData
       );
       toast({
@@ -220,10 +224,12 @@ function Appointment() {
             <FormControl mb={3}>
               <FormLabel>Врач</FormLabel>
               <Select
+                value={formData.doctor}
                 onChange={(e) =>
                   setFormData({ ...formData, doctor: parseInt(e.target.value) })
                 }
               >
+                <option value={0}>Выберите врача</option>
                 {doctors.map((item) => (
                   <option key={item.id} value={item.id}>
                     {item.surname} {item.name}

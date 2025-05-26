@@ -24,66 +24,64 @@ import {
   ModalCloseButton,
   FormControl,
   FormLabel,
-  Select,
   useToast,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
 
-function SubCategories() {
-  const [subCategories, setSubCategories] = useState([]);
-  const [categories, setCategories] = useState([]); // Состояние для категорий
+function Palate() {
+  const [bases, setBases] = useState([]);
+  const [clients, setClients] = useState([]);
   const [search, setSearch] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
-    categoryId: "", // categoryId будет хранить выбранную категорию
+    palate: "",
+    floor: "",
+    clientId: "",
+    palateType: "",
   });
 
-  // Загрузка подкатегорий
-  async function loadSubCategories() {
-    const data = await fetcher("sub");
-    setSubCategories(Array.isArray(data) ? data : []);
+  async function loadbases() {
+    const data = await fetcher("palates");
+    setBases(Array.isArray(data) ? data : []);
   }
-
-  // Загрузка категорий
-  async function loadCategories() {
-    const data = await fetcher("categories");
-    setCategories(Array.isArray(data) ? data : []);
+  async function loadClients() {
+    const data = await fetcher("clients");
+    setClients(Array.isArray(data) ? data : []);
   }
 
   useEffect(() => {
-    loadSubCategories();
-    loadCategories();
+    loadbases();
+    loadClients();
   }, []);
 
-  const filteredSubCategories = subCategories.filter((subCategory) =>
-    [subCategory?.id, subCategory?.name, subCategory?.createdAt].some((field) =>
+  const filteredbases = bases.filter((base) =>
+    [base?.id, base?.palate, base?.createdAt].some((field) =>
       field?.toString().toLowerCase().includes(search.toLowerCase())
     )
   );
 
-  const handleCreateSubCategory = async () => {
+  const handleCreatebase = async () => {
     try {
       if (isEditing) {
         await axios.put(
-          `http://localhost:4000/sub/edit/${editingId}`,
+          `http://localhost:4000/palate/edit/${editingId}`,
           formData
         );
         toast({
-          title: "Подкатегория обновлена.",
+          title: "Филиал обновлён.",
           status: "success",
           duration: 3000,
           isClosable: true,
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://localhost:4000/sub/new", formData);
+        await axios.post("http://localhost:4000/palate/new", formData);
         toast({
-          title: "Подкатегория создана.",
+          title: "Филиал создан.",
           status: "success",
           duration: 3000,
           isClosable: true,
@@ -91,35 +89,39 @@ function SubCategories() {
         });
       }
 
-      loadSubCategories();
+      loadbases();
+      loadClients();
       onClose();
       setFormData({
-        name: "",
-        categoryId: "", // Сброс после создания
+        palate: "",
+        floor: "",
+        clientId: "",
+        palateType: "",
       });
     } catch (error) {
       toast({
-        title: "Ошибка при создании подкатегории.",
+        title: "Ошибка при создании филлиала.",
         description: error.response?.data?.message || "Попробуйте снова позже.",
         status: "error",
         duration: 4000,
         isClosable: true,
       });
-      console.error("Ошибка при создании подкатегории:", error);
+      console.error("Ошибка при создании врача:", error);
     }
   };
 
-  const handleDeleteSubCategory = async (id) => {
+  const handleDeleteBase = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/sub/delete/${id}`);
+      await axios.delete(`http://localhost:4000/palate/delete/${id}`);
       toast({
-        title: "Подкатегория удалена.",
+        title: "Филиал удалён.",
         status: "success",
         duration: 3000,
         isClosable: true,
         position: "bottom-right",
       });
-      loadSubCategories();
+      loadbases();
+      loadClients();
     } catch (error) {
       toast({
         title: "Ошибка при удалении.",
@@ -128,16 +130,18 @@ function SubCategories() {
         duration: 4000,
         isClosable: true,
       });
-      console.error("Ошибка при удалении подкатегории:", error);
+      console.error("Ошибка при удалении филиала:", error);
     }
   };
 
-  const handleEditSubCategory = (subCategory) => {
+  const handleEditBase = (base) => {
     setIsEditing(true);
-    setEditingId(subCategory.id);
+    setEditingId(base.id);
     setFormData({
-      name: subCategory.name,
-      categoryId: subCategory.categoryId, // Присваиваем id категории
+      palate: base.palate,
+      clientId: base.clientId,
+      palateType: base.palateType,
+      floor: base.floor,
     });
     onOpen();
   };
@@ -147,15 +151,15 @@ function SubCategories() {
     setIsEditing(false);
     setEditingId(null);
     setFormData({
-      name: "",
-      categoryId: "", // Сброс формы
+      palate: "",
+      clientId: "",
     });
   };
 
   return (
     <Box p={4} borderRadius="16px" w="100%" overflowX="auto" bg="#fff">
       <Flex justify="space-between" mb={4} flexWrap="wrap" gap={4}>
-        <InputGroup w={{ subCategory: "100%", md: "50%" }}>
+        <InputGroup w={{ base: "100%", md: "50%" }}>
           <Input
             placeholder="Поиск по любому параметру"
             color="black"
@@ -170,7 +174,7 @@ function SubCategories() {
           </InputRightElement>
         </InputGroup>
         <Button colorScheme="blue" onClick={onOpen}>
-          Создать подкатегорию
+          Создать Палату
         </Button>
       </Flex>
 
@@ -179,36 +183,46 @@ function SubCategories() {
           <Thead position="sticky" top={0} zIndex={1} bg="white">
             <Tr>
               <Th>id</Th>
-              <Th>Имя подкатегории</Th>
-              <Th>Категория</Th>
-              <Th>Количество услуг</Th>
+              <Th>Номер палаты</Th>
+              <Th>Этаж</Th>
+              <Th>Айди клиента</Th>
+              <Th>Ф.И.О. клиента</Th>
+              <Th>Тип палаты</Th>
               <Th>Создан</Th>
               <Th>Действия</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {filteredSubCategories.map((subCategory) => (
-              <Tr key={subCategory.id}>
-                <Td>{subCategory.id}</Td>
-                <Td>{subCategory.name}</Td>
-                <Td>{subCategory.category.categoryName}</Td>
-                <Td>{subCategory.offers?.length || 0}</Td>
+            {filteredbases.map((base) => (
+              <Tr key={base.id}>
+                <Td>{base.id}</Td>
+                <Td>{base.palate}</Td>
+                <Td>{base.floor}</Td>
+                <Td>{base.clientId || 0}</Td>
                 <Td>
-                  {new Date(subCategory.createdAt).toISOString().split("T")[0]}
+                  {(() => {
+                    const client = clients.find((c) => c.id === base.clientId);
+                    return client
+                      ? `${client.surname} ${client.name} ${client.lastName}`
+                      : "Не удалось загрузить";
+                  })()}
                 </Td>
+
+                <Td>{base.palateType || 0}</Td>
+                <Td>{new Date(base.createdAt).toISOString().split("T")[0]}</Td>
                 <Td>
                   <Flex gap={2}>
                     <Button
                       size="xs"
                       colorScheme="yellow"
-                      onClick={() => handleEditSubCategory(subCategory)}
+                      onClick={() => handleEditBase(base)}
                     >
-                      Редактировать
+                      Записать пациента
                     </Button>
                     <Button
                       size="xs"
                       colorScheme="red"
-                      onClick={() => handleDeleteSubCategory(subCategory.id)}
+                      onClick={() => handleDeleteBase(base.id)}
                     >
                       Удалить
                     </Button>
@@ -224,38 +238,53 @@ function SubCategories() {
       <Modal isOpen={isOpen} onClose={onClose} size="2xl">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Создание подкатегории</ModalHeader>
+          <ModalHeader>Запись пациента</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl mb={3}>
-              <FormLabel>Имя подкатегории</FormLabel>
+              <FormLabel>Номер палаты</FormLabel>
               <Input
-                value={formData.name}
+                value={formData.palate}
                 onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
+                  setFormData({ ...formData, palate: e.target.value })
                 }
-                placeholder="Введите имя подкатегории"
+                placeholder="Введите номер палаты"
+              />
+            </FormControl>
+            <FormControl mb={3}>
+              <FormLabel>Этаж</FormLabel>
+              <Input
+                value={formData.floor}
+                onChange={(e) =>
+                  setFormData({ ...formData, floor: e.target.value })
+                }
+                placeholder="Введите этаж"
               />
             </FormControl>
 
             <FormControl mb={3}>
-              <FormLabel>Категория</FormLabel>
-              <Select
-                value={formData.categoryId}
+              <FormLabel>Айди пациента</FormLabel>
+              <Input
+                value={formData.clientId}
                 onChange={(e) =>
-                  setFormData({ ...formData, categoryId: e.target.value })
+                  setFormData({ ...formData, clientId: e.target.value })
                 }
-                placeholder="Выберите категорию"
-              >
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.categoryName}
-                  </option>
-                ))}
-              </Select>
+                placeholder="Введите айди пациента"
+              />
             </FormControl>
 
-            <Button colorScheme="blue" mr={3} onClick={handleCreateSubCategory}>
+            <FormControl mb={3}>
+              <FormLabel>Тип палаты</FormLabel>
+              <Input
+                value={formData.palateType}
+                onChange={(e) =>
+                  setFormData({ ...formData, palateType: e.target.value })
+                }
+                placeholder="Введите тип палаты"
+              />
+            </FormControl>
+
+            <Button colorScheme="blue" mr={3} onClick={handleCreatebase}>
               {isEditing ? "Сохранить" : "Создать"}
             </Button>
           </ModalBody>
@@ -265,4 +294,4 @@ function SubCategories() {
   );
 }
 
-export default SubCategories;
+export default Palate;

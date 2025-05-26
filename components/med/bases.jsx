@@ -59,7 +59,7 @@ function Bases() {
     try {
       if (isEditing) {
         await axios.put(
-          `http://192.168.1.13:4000/base/edit/${editingId}`,
+          `http://localhost:4000/base/edit/${editingId}`,
           formData
         );
         toast({
@@ -70,7 +70,7 @@ function Bases() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://192.168.1.13:4000/base/new", formData);
+        await axios.post("http://localhost:4000/base/new", formData);
         toast({
           title: "Филиал создан.",
           status: "success",
@@ -99,7 +99,7 @@ function Bases() {
 
   const handleDeleteBase = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.13:4000/base/delete/${id}`);
+      await axios.delete(`http://localhost:4000/base/delete/${id}`);
       toast({
         title: "Филиал удалён.",
         status: "success",

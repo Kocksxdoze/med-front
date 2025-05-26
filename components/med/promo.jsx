@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import fetcher from "../../utils/fetcher";
 import {
   Flex,
   Box,
@@ -28,8 +29,8 @@ import {
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
 
-function Diagnostic() {
-  const [dias, setDias] = useState([]);
+function Promo() {
+  const [bases, setBases] = useState([]);
   const [search, setSearch] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -37,85 +38,78 @@ function Diagnostic() {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
-    price: "",
-    about: "",
-    table: "",
-    analise: "",
-    ready: "",
+    presentage: "",
   });
 
-  const loadDias = async () => {
-    try {
-      const res = await axios.get("http://localhost:4000/dias");
-      setDias(Array.isArray(res.data) ? res.data : []);
-    } catch (error) {
-      console.error("Ошибка при загрузке диагнозов:", error);
-    }
-  };
+  async function loadbases() {
+    const data = await fetcher("promocodes");
+    setBases(Array.isArray(data) ? data : []);
+  }
 
   useEffect(() => {
-    loadDias();
+    loadbases();
   }, []);
 
-  const filteredDias = dias.filter((dia) =>
-    [
-      dia?.id,
-      dia?.name,
-      dia?.price,
-      dia?.about,
-      dia?.table,
-      dia?.analise,
-      dia?.ready,
-    ].some((field) =>
+  const filteredbases = bases.filter((base) =>
+    [base?.id, base?.name, base?.createdAt].some((field) =>
       field?.toString().toLowerCase().includes(search.toLowerCase())
     )
   );
 
-  const handleCreateOrUpdate = async () => {
+  const handleCreatebase = async () => {
     try {
       if (isEditing) {
         await axios.put(
-          `http://localhost:4000/dia/update/${editingId}`,
+          `http://localhost:4000/promo/edit/${editingId}`,
           formData
         );
         toast({
-          title: "Диагноз обновлён.",
+          title: "Филиал обновлён.",
           status: "success",
           duration: 3000,
           isClosable: true,
+          position: "bottom-right",
         });
       } else {
-        await axios.post("http://localhost:4000/dia/new", formData);
+        await axios.post("http://localhost:4000/promo/create", formData);
         toast({
-          title: "Диагноз создан.",
+          title: "Промокод создан.",
           status: "success",
           duration: 3000,
           isClosable: true,
+          position: "bottom-right",
         });
       }
-      loadDias();
-      handleClose();
+
+      loadbases();
+      onClose();
+      setFormData({
+        name: "",
+        presentage: "",
+      });
     } catch (error) {
       toast({
-        title: "Ошибка при сохранении.",
+        title: "Ошибка при создании филлиала.",
         description: error.response?.data?.message || "Попробуйте снова позже.",
         status: "error",
         duration: 4000,
         isClosable: true,
       });
+      console.error("Ошибка при создании врача:", error);
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDeleteBase = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/dia/delete/${id}`);
+      await axios.delete(`http://localhost:4000/promo/delete/${id}`);
       toast({
-        title: "Диагноз удалён.",
+        title: "Филиал удалён.",
         status: "success",
         duration: 3000,
         isClosable: true,
+        position: "bottom-right",
       });
-      loadDias();
+      loaddoctors();
     } catch (error) {
       toast({
         title: "Ошибка при удалении.",
@@ -124,16 +118,14 @@ function Diagnostic() {
         duration: 4000,
         isClosable: true,
       });
+      console.error("Ошибка при удалении филиала:", error);
     }
   };
 
-  const handleEdit = (dia) => {
+  const handleEditBase = (base) => {
     setIsEditing(true);
-    setEditingId(dia.id);
-    setFormData({
-      name: dia.name,
-      description: dia.description,
-    });
+    setEditingId(base.id);
+    setFormData({ name: base.name, presentage: base.presentage });
     onOpen();
   };
 
@@ -141,7 +133,7 @@ function Diagnostic() {
     onClose();
     setIsEditing(false);
     setEditingId(null);
-    setFormData({ name: "", description: "" });
+    setFormData({ name: "", presentage: "" });
   };
 
   return (
@@ -162,7 +154,7 @@ function Diagnostic() {
           </InputRightElement>
         </InputGroup>
         <Button colorScheme="blue" onClick={onOpen}>
-          Создать диагноз
+          Создать промокод
         </Button>
       </Flex>
 
@@ -170,39 +162,33 @@ function Diagnostic() {
         <Table variant="striped" size="sm" width="100%">
           <Thead position="sticky" top={0} zIndex={1} bg="white">
             <Tr>
-              <Th>ID</Th>
-              <Th>Название</Th>
-              <Th>Цена</Th>
-              <Th>Описание</Th>
-              <Th>Таблица диагноза для клиента</Th>
-              <Th>Анализ</Th>
-              <Th>Готовность</Th>
+              <Th>id</Th>
+              <Th>Название промокода</Th>
+              <Th>Процентная скидка</Th>
+              <Th>Создан</Th>
+              <Th>Действия</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {filteredDias.map((dia) => (
-              <Tr key={dia.id}>
-                <Td>{dia.id}</Td>
-                <Td>{dia.name}</Td>
-                <Td>{dia.price}</Td>
-                <Td>{dia.about}</Td>
-                <Td>{dia.table}</Td>
-                <Td>{dia.analise}</Td>
-                <Td>{dia.ready}</Td>
-
+            {filteredbases.map((base) => (
+              <Tr key={base.id}>
+                <Td>{base.id}</Td>
+                <Td>{base.name}</Td>
+                <Td>{base.presentage || 0}</Td>
+                <Td>{new Date(base.createdAt).toISOString().split("T")[0]}</Td>
                 <Td>
                   <Flex gap={2}>
                     <Button
                       size="xs"
                       colorScheme="yellow"
-                      onClick={() => handleEdit(dia)}
+                      onClick={() => handleEditBase(base)}
                     >
                       Редактировать
                     </Button>
                     <Button
                       size="xs"
                       colorScheme="red"
-                      onClick={() => handleDelete(dia.id)}
+                      onClick={() => handleDeleteBase(base.id)}
                     >
                       Удалить
                     </Button>
@@ -215,35 +201,36 @@ function Diagnostic() {
       </TableContainer>
 
       {/* Модальное окно */}
-      <Modal isOpen={isOpen} onClose={handleClose} size="2xl">
+      <Modal isOpen={isOpen} onClose={onClose} size="2xl">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>
-            {isEditing ? "Редактировать диагноз" : "Создать диагноз"}
-          </ModalHeader>
+          <ModalHeader>Создание Промокода</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl mb={3}>
-              <FormLabel>Название</FormLabel>
+              <FormLabel>Имя промокода</FormLabel>
               <Input
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                placeholder="Введите название диагноза"
+                placeholder="Введите имя промокода"
               />
             </FormControl>
+
             <FormControl mb={3}>
-              <FormLabel>Описание</FormLabel>
+              <FormLabel>Процентная скидка</FormLabel>
               <Input
-                value={formData.description}
+                type="number"
+                value={formData.presentage}
                 onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
+                  setFormData({ ...formData, presentage: e.target.value })
                 }
-                placeholder="Введите описание"
+                placeholder="Введите процент"
               />
             </FormControl>
-            <Button colorScheme="blue" mr={3} onClick={handleCreateOrUpdate}>
+
+            <Button colorScheme="blue" mr={3} onClick={handleCreatebase}>
               {isEditing ? "Сохранить" : "Создать"}
             </Button>
           </ModalBody>
@@ -253,4 +240,4 @@ function Diagnostic() {
   );
 }
 
-export default Diagnostic;
+export default Promo;

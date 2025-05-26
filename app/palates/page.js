@@ -1,16 +1,11 @@
 "use client";
 import React from "react";
-import Header from "../../../components/med/header";
-import Footer from "../../../components/med/footer";
-import Benefit from "../../../components/med/benefits";
+import Header from "../../components/med/header";
+import Footer from "../../components/med/footer";
+import ParticlesComponent from "../../components/med/particles";
 import { Flex, Box } from "@chakra-ui/react";
-import dynamic from "next/dynamic";
-const ParticlesComponent = dynamic(
-  () => import("../../../components/med/particles"),
-  { ssr: false }
-);
-
-function CategoryPage() {
+import Palate from "../../components/med/palateComponent";
+function DoctorsPage() {
   return (
     <>
       <Flex flexDir={"column"} pos={"absolute"} w={"100%"}>
@@ -33,7 +28,7 @@ function CategoryPage() {
             display={"flex"}
             justifyContent={"center"}
           >
-            <Benefit />
+            <Palate />
           </Box>
         </Box>
         <Box pos={"relative"} bottom={"0"} px={"50px"} mt={"50px"} w={"100%"}>
@@ -44,4 +39,4 @@ function CategoryPage() {
   );
 }
 
-export default CategoryPage;
+export default DoctorsPage;

@@ -44,7 +44,7 @@ function Header() {
 
   useEffect(() => {
     const fetchReports = async () => {
-      const response = await fetch("http://192.168.1.13:4000/reports");
+      const response = await fetch("http://localhost:4000/reports");
       const data = await response.json();
       if (response.ok) {
         setReports(data);
@@ -55,7 +55,7 @@ function Header() {
 
   const clients = async () => {
     try {
-      const response = await fetch("http://192.168.1.13:4000/clients");
+      const response = await fetch("http://localhost:4000/clients");
       const data = await response.json();
       console.log(data);
 
@@ -129,62 +129,29 @@ function Header() {
           gap={5}
         >
           <Heading
-            h={"auto"}
-            w={"auto"}
-            lineHeight={"21px"}
-            fontSize={"25px"}
-            color={"#0052b4"}
-            mt={"5px"}
+            w="fit-content"
+            lineHeight="21px"
+            fontSize="25px"
+            color="#0052b4"
+            mt="5px"
           >
             ROSHIDON
-            <br />
-            <chakra.span
-              fontSize={"16px"}
-              w={"auto"}
-              h={"auto"}
-              color={"black"}
+            <Box
+              fontSize="16px"
+              color="black"
+              w="full"
+              display="flex"
+              justifyContent="space-between"
+              letterSpacing="widest"
             >
-              medical center
-            </chakra.span>
+              <chakra.span>medical</chakra.span>
+              <chakra.span>center</chakra.span>
+            </Box>
           </Heading>
 
           <Input
-            w={"150px"}
-            placeholder="№ карты"
-            bg={"transparent"}
-            border={0}
-            outline={"none"}
-            fontSize={"16px"}
-            p={"10px 0"}
-            borderBottom={"1px solid #000"}
-            borderRadius={0}
-            color={"#000"}
-            _focus={{
-              outline: "none",
-              boxShadow: "none",
-              borderBottom: "1px solid #000",
-            }}
-          />
-          <Input
-            w={"150px"}
-            placeholder="Лаб ID"
-            bg={"transparent"}
-            border={0}
-            outline={"none"}
-            fontSize={"16px"}
-            p={"10px 0"}
-            borderBottom={"1px solid #000"}
-            borderRadius={0}
-            color={"#000"}
-            _focus={{
-              outline: "none",
-              boxShadow: "none",
-              borderBottom: "1px solid #000",
-            }}
-          />
-          <Input
-            w={"150px"}
-            placeholder="Пац ID"
+            w={"35%"}
+            placeholder="Пац ID или Ф.И.О."
             bg={"transparent"}
             border={0}
             outline={"none"}
@@ -389,8 +356,8 @@ function Header() {
             <MenuList zIndex={"999"}>
               {reports.map((report, indx) => (
                 <MenuItem
-                  key={indx}
-                  onClick={() => router.push(`/reports/${report.name}`)}
+                  key={report.id}
+                  onClick={() => router.push(`/report/${report.id}`)}
                 >
                   {report.name}
                 </MenuItem>

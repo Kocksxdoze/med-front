@@ -34,7 +34,7 @@ function Register() {
     const formData = { ...formRef.current, sex: value2 };
 
     try {
-      const response = await fetch("http://192.168.1.13:4000/client/create", {
+      const response = await fetch("http://localhost:4000/client/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -137,7 +137,7 @@ function Register() {
                     type="date"
                   />
                   <Text>Пол</Text>
-                  <RadioGroup Group onChange={setValue2} value={value2}>
+                  <RadioGroup onChange={setValue2} value={value2}>
                     <Stack direction="row">
                       <Radio border={"1px solid #000"} value="1">
                         Мужской
@@ -426,7 +426,14 @@ function Register() {
             </Flex>
 
             <Flex px={"100px"} gap={10} w={"100%"} alignItems={"flex-start"}>
-              <Registration />
+              <Registration
+                onSelectOffer={(offer) => {
+                  formRef.current.offer = offer;
+                  formRef.current.doctorId = offer.doctorId;
+                  formRef.current.doctor = offer.doctorName || "Не указан";
+                  formRef.current.debt = offer.sum || 0;
+                }}
+              />
             </Flex>
 
             <Flex

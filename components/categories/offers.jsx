@@ -24,11 +24,11 @@ import {
   ModalCloseButton,
   FormControl,
   FormLabel,
-  Select,
   useToast,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
+import Select from "react-select";
 
 function Offers() {
   const [offers, setoffers] = useState([]);
@@ -54,8 +54,13 @@ function Offers() {
 
   // Загрузка категорий
   async function loadCategories() {
-    const data = await fetcher("doctors");
-    setCategories(Array.isArray(data) ? data : []);
+    try {
+      const data = await fetcher("doctors");
+      console.log("Doctors response:", data); // ← добавь это
+      setCategories(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Ошибка загрузки докторов:", error); // ← и это
+    }
   }
 
   useEffect(() => {
@@ -84,7 +89,7 @@ function Offers() {
       if (isEditing) {
         // Обновление
         await axios.put(
-          `http://192.168.1.13:4000/offer/edit/${editingId}`,
+          `http://localhost:4000/offer/update/${editingId}`,
           formData
         );
         toast({
@@ -96,7 +101,7 @@ function Offers() {
         });
       } else {
         // Создание
-        await axios.post("http://192.168.1.13:4000/offer/new", formData);
+        await axios.post("http://localhost:4000/offer/new", formData);
         toast({
           title: "Услуга создана.",
           status: "success",
@@ -128,7 +133,7 @@ function Offers() {
 
   const handleDeleteoffer = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.13:4000/offer/delete/${id}`);
+      await axios.delete(`http://localhost:4000/offer/delete/${id}`);
       toast({
         title: "Подкатегория удалена.",
         status: "success",
@@ -156,7 +161,7 @@ function Offers() {
       name: offer.name,
       sum: offer.sum,
       subCategoryId: offer.subCategoryId || "",
-      doctorId: offer.doctorId || "",
+      doctorId: Array.isArray(offer.doctorId) ? offer.doctorId : [],
       createdAt: offer.createdAt || "",
     });
     onOpen();
@@ -191,7 +196,22 @@ function Offers() {
             <SearchIcon color="black.500" />
           </InputRightElement>
         </InputGroup>
-        <Button w={"auto"} colorScheme="blue" onClick={onOpen}>
+        <Button
+          w={"auto"}
+          colorScheme="blue"
+          onClick={() => {
+            setIsEditing(false);
+            setEditingId(null);
+            setFormData({
+              name: "",
+              sum: "",
+              subCategoryId: "",
+              doctorId: "",
+              createdAt: "",
+            });
+            onOpen();
+          }}
+        >
           Создать
         </Button>
       </Flex>
@@ -215,7 +235,12 @@ function Offers() {
                 <Td>{offer.name}</Td>
                 <Td>{offer.sum}</Td>
                 <Td>{offer.subCategory.name}</Td>
-                <Td>{offer.name}</Td>
+                <Td>
+                  {offer.doctors && offer.doctors.surname && offer.doctors.name
+                    ? `${offer.doctors.surname} ${offer.doctors.name}`
+                    : "-"}
+                </Td>
+
                 <Td>{new Date(offer.createdAt).toISOString().split("T")[0]}</Td>
                 <Td>
                   <Flex gap={2}>
@@ -282,20 +307,36 @@ function Offers() {
             </FormControl>
 
             <FormControl mb={3}>
-              <FormLabel>Доктор</FormLabel>
+              <FormLabel>Доктора</FormLabel>
               <Select
-                value={formData.doctorId}
-                onChange={(e) =>
-                  setFormData({ ...formData, doctorId: e.target.value })
+                isMulti
+                name="doctorId"
+                options={categories.map((doc) => ({
+                  label: `${doc.name} ${doc.surname}`,
+                  value: doc.id,
+                }))}
+                placeholder="Выберите докторов"
+                value={categories
+                  .filter((doc) => formData.doctorId?.includes(doc.id))
+                  .map((doc) => ({
+                    label: `${doc.name} ${doc.surname}`,
+                    value: doc.id,
+                  }))}
+                onChange={(selected) =>
+                  setFormData({
+                    ...formData,
+                    doctorId: selected.map((item) => item.value),
+                  })
                 }
-                placeholder="Выберите доктора"
-              >
-                {categories.map((doc) => (
-                  <option key={doc.id} value={doc.id}>
-                    {doc.fullName}
-                  </option>
-                ))}
-              </Select>
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    borderColor: "#CBD5E0", // Цвет бордера
+                    borderRadius: "6px",
+                    minHeight: "38px",
+                  }),
+                }}
+              />
             </FormControl>
 
             <Button colorScheme="blue" mr={3} onClick={handleCreateoffer}>

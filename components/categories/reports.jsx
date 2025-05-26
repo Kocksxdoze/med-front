@@ -40,10 +40,6 @@ function Reports() {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
-    reportCategory: "",
-    desc: "",
-    doctorId: "",
-    createdAt: "",
   });
 
   // Загрузка подкатегорий
@@ -79,12 +75,11 @@ function Reports() {
       });
       return;
     }
-    // Далее отправляем запрос
     try {
       if (isEditing) {
-        // Обновление
+        //
         await axios.put(
-          `http://192.168.1.13:4000/report/edit/${editingId}`,
+          `http://localhost:4000/report/edit/${editingId}`,
           formData
         );
         toast({
@@ -96,7 +91,7 @@ function Reports() {
         });
       } else {
         // Создание
-        await axios.post("http://192.168.1.13:4000/report/create", formData);
+        await axios.post("http://localhost:4000/report/create", formData);
         toast({
           title: "Отчет создан.",
           status: "success",
@@ -128,7 +123,7 @@ function Reports() {
 
   const handleDeletereport = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.13:4000/report/delete/${id}`);
+      await axios.delete(`http://localhost:4000/report/delete/${id}`);
       toast({
         title: "Подкатегория удалена.",
         status: "success",
@@ -201,11 +196,10 @@ function Reports() {
           <Thead position="sticky" top={0} zIndex={1} bg="white">
             <Tr>
               <Th>id</Th>
-              <Th>Имя отчета</Th>
               <Th>Категория отчета</Th>
-              <Th>Содержание</Th>
-              <Th>Доктор</Th>
+              <Th>Количество отчетов у категории</Th>
               <Th>Создан</Th>
+              <Th>Обновлен</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -213,11 +207,12 @@ function Reports() {
               <Tr key={report.id}>
                 <Td>{report.id}</Td>
                 <Td>{report.name}</Td>
-                <Td>{report.reportCategory}</Td>
-                <Td>{report.desc}</Td>
-                <Td>{report.doctors?.length || 0}</Td>
+                <Td>{report.reportsTo?.length || 0}</Td>
                 <Td>
                   {new Date(report.createdAt).toISOString().split("T")[0]}
+                </Td>
+                <Td>
+                  {new Date(report.updatedAt).toISOString().split("T")[0]}
                 </Td>
                 <Td>
                   <Flex gap={2}>
@@ -251,53 +246,14 @@ function Reports() {
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl mb={3}>
-              <FormLabel>Имя отчета</FormLabel>
+              <FormLabel>Категория отчета</FormLabel>
               <Input
                 value={formData.name}
                 onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
+                  setFormData({ formData, name: e.target.value })
                 }
-                placeholder="Введите имя отчета"
+                placeholder="Введите имя категории"
               />
-            </FormControl>
-
-            <FormControl mb={3}>
-              <FormLabel>Категория отчета</FormLabel>
-              <Input
-                value={formData.reportCategory}
-                onChange={(e) =>
-                  setFormData({ ...formData, reportCategory: e.target.value })
-                }
-                placeholder="Категория отчета"
-              />
-            </FormControl>
-
-            <FormControl mb={3}>
-              <FormLabel>Описание</FormLabel>
-              <Input
-                value={formData.desc}
-                onChange={(e) =>
-                  setFormData({ ...formData, desc: e.target.value })
-                }
-                placeholder="Описание отчета"
-              />
-            </FormControl>
-
-            <FormControl mb={3}>
-              <FormLabel>Доктор</FormLabel>
-              <Select
-                value={formData.doctorId}
-                onChange={(e) =>
-                  setFormData({ ...formData, doctorId: e.target.value })
-                }
-                placeholder="Выберите доктора"
-              >
-                {categories.map((doc) => (
-                  <option key={doc.id} value={doc.id}>
-                    {doc.fullName}
-                  </option>
-                ))}
-              </Select>
             </FormControl>
 
             <Button colorScheme="blue" mr={3} onClick={handleCreatereport}>

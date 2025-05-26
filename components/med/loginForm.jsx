@@ -27,7 +27,7 @@ function LoginForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch("http://192.168.1.13:4000/login", {
+      const response = await fetch("http://localhost:4000/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

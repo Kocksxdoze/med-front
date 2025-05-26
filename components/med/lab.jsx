@@ -46,7 +46,7 @@ function Lab() {
 
   const loadDias = async () => {
     try {
-      const res = await axios.get("http://192.168.1.13:4000/dias");
+      const res = await axios.get("http://localhost:4000/labs");
       setDias(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error("Ошибка при загрузке Лаборатории:", error);
@@ -75,7 +75,7 @@ function Lab() {
     try {
       if (isEditing) {
         await axios.put(
-          `http://192.168.1.13:4000/dia/update/${editingId}`,
+          `http://localhost:4000/lab/update/${editingId}`,
           formData
         );
         toast({
@@ -85,7 +85,7 @@ function Lab() {
           isClosable: true,
         });
       } else {
-        await axios.post("http://192.168.1.13:4000/dia/new", formData);
+        await axios.post("http://localhost:4000/lab/new", formData);
         toast({
           title: "Лаборатория создан.",
           status: "success",
@@ -108,7 +108,7 @@ function Lab() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.13:4000/dia/delete/${id}`);
+      await axios.delete(`http://localhost:4000/lab/delete/${id}`);
       toast({
         title: "Лаборатория удалён.",
         status: "success",
@@ -132,7 +132,10 @@ function Lab() {
     setEditingId(dia.id);
     setFormData({
       name: dia.name,
-      description: dia.description,
+      about: dia.about,
+      price: dia.price,
+      analise: dia.analise,
+      ready: dia.ready,
     });
     onOpen();
   };
@@ -188,7 +191,7 @@ function Lab() {
                 <Td>{dia.about}</Td>
                 <Td>{dia.table}</Td>
                 <Td>{dia.analise}</Td>
-                <Td>{dia.ready}</Td>
+                <Td>{dia.clientId}</Td>
 
                 <Td>
                   <Flex gap={2}>
@@ -230,18 +233,48 @@ function Lab() {
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                placeholder="Введите название Лабораторияа"
+                placeholder="Введите название категории"
               />
             </FormControl>
             <FormControl mb={3}>
               <FormLabel>Описание</FormLabel>
               <Input
-                value={formData.description}
+                value={formData.about}
                 onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
+                  setFormData({ ...formData, about: e.target.value })
                 }
                 placeholder="Введите описание"
               />
+            </FormControl>
+            <FormControl mb={3}>
+              <FormLabel>Цена</FormLabel>
+              <Input
+                value={formData.price}
+                onChange={(e) =>
+                  setFormData({ ...formData, price: e.target.value })
+                }
+                placeholder="Введите цену"
+              />
+              <FormControl mb={3}>
+                <FormLabel>Анализ</FormLabel>
+                <Input
+                  value={formData.analise}
+                  onChange={(e) =>
+                    setFormData({ ...formData, analise: e.target.value })
+                  }
+                  placeholder="Введите тип анализа"
+                />
+              </FormControl>
+              <FormControl mb={3}>
+                <FormLabel>Готовность</FormLabel>
+                <Input
+                  value={formData.ready}
+                  onChange={(e) =>
+                    setFormData({ ...formData, ready: e.target.value })
+                  }
+                  placeholder="Введите готовность"
+                />
+              </FormControl>
             </FormControl>
             <Button colorScheme="blue" mr={3} onClick={handleCreateOrUpdate}>
               {isEditing ? "Сохранить" : "Создать"}
