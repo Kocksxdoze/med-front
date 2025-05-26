@@ -2,9 +2,10 @@
 import React from "react";
 import Header from "../../components/med/header";
 import Footer from "../../components/med/footer";
-import ParticlesComponent from "../../component s/med/particles";
+import ParticlesComponent from "../../components/med/particles";
 import { Flex, Box } from "@chakra-ui/react";
 import Promo from "../../components/med/promo";
+
 function DoctorsPage() {
   return (
     <>
