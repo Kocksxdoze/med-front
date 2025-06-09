@@ -60,7 +60,7 @@ function AppTypes() {
     try {
       if (isEditing) {
         await axios.put(
-          `http://localhost:4000/type/update/${editingId}`,
+          `http://0.0.0.0:4000/type/update/${editingId}`,
           formData
         );
         toast({
@@ -71,7 +71,7 @@ function AppTypes() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://localhost:4000/type/new", formData);
+        await axios.post("http://0.0.0.0:4000/type/new", formData);
         toast({
           title: "Тип создан.",
           status: "success",
@@ -101,7 +101,7 @@ function AppTypes() {
 
   const handleDeleteBase = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/type/delete/${id}`);
+      await axios.delete(`http://0.0.0.0:4000/type/delete/${id}`);
       toast({
         title: "Тип удалён.",
         status: "success",

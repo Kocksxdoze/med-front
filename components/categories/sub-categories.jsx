@@ -69,10 +69,7 @@ function SubCategories() {
   const handleCreateSubCategory = async () => {
     try {
       if (isEditing) {
-        await axios.put(
-          `http://localhost:4000/sub/edit/${editingId}`,
-          formData
-        );
+        await axios.put(`http://0.0.0.0:4000/sub/edit/${editingId}`, formData);
         toast({
           title: "Подкатегория обновлена.",
           status: "success",
@@ -81,7 +78,7 @@ function SubCategories() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://localhost:4000/sub/new", formData);
+        await axios.post("http://0.0.0.0:4000/sub/new", formData);
         toast({
           title: "Подкатегория создана.",
           status: "success",
@@ -111,7 +108,7 @@ function SubCategories() {
 
   const handleDeleteSubCategory = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/sub/delete/${id}`);
+      await axios.delete(`http://0.0.0.0:4000/sub/delete/${id}`);
       toast({
         title: "Подкатегория удалена.",
         status: "success",

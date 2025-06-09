@@ -46,7 +46,7 @@ function Lab() {
 
   const loadDias = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/dia-categories");
+      const res = await axios.get("http://0.0.0.0:4000/dia-categories");
       setDias(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error("Ошибка при загрузке Диагностики:", error);
@@ -75,7 +75,7 @@ function Lab() {
     try {
       if (isEditing) {
         await axios.put(
-          `http://localhost:4000/dia-category/update/${editingId}`,
+          `http://0.0.0.0:4000/dia-category/update/${editingId}`,
           formData
         );
         toast({
@@ -85,7 +85,7 @@ function Lab() {
           isClosable: true,
         });
       } else {
-        await axios.post("http://localhost:4000/dia-category/new", formData);
+        await axios.post("http://0.0.0.0:4000/dia-category/new", formData);
         toast({
           title: "Диагностика создана.",
           status: "success",
@@ -108,7 +108,7 @@ function Lab() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/dia-category/delete/${id}`);
+      await axios.delete(`http://0.0.0.0:4000/dia-category/delete/${id}`);
       toast({
         title: "Диагностика удалёна.",
         status: "success",

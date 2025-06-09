@@ -156,7 +156,7 @@ function Register() {
 
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:4000/client/create", {
+      const response = await fetch("http://0.0.0.0:4000/client/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

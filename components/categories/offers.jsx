@@ -89,7 +89,7 @@ function Offers() {
       if (isEditing) {
         // Обновление
         await axios.put(
-          `http://localhost:4000/offer/update/${editingId}`,
+          `http://0.0.0.0:4000/offer/update/${editingId}`,
           formData
         );
         toast({
@@ -101,7 +101,7 @@ function Offers() {
         });
       } else {
         // Создание
-        await axios.post("http://localhost:4000/offer/new", formData);
+        await axios.post("http://0.0.0.0:4000/offer/new", formData);
         toast({
           title: "Услуга создана.",
           status: "success",
@@ -133,7 +133,7 @@ function Offers() {
 
   const handleDeleteoffer = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/offer/delete/${id}`);
+      await axios.delete(`http://0.0.0.0:4000/offer/delete/${id}`);
       toast({
         title: "Подкатегория удалена.",
         status: "success",
