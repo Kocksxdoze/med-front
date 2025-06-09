@@ -84,7 +84,7 @@ function Cabinet() {
 
     // Уже есть загрузка клиентов...
     setLoadingClients(true);
-    fetch("http://0.0.0.0:4000/clients")
+    fetch("http://192.168.1.11:4000/clients")
       .then((res) => res.json())
       .then((data) => {
         const filteredClients = data.filter(
@@ -99,7 +99,7 @@ function Cabinet() {
 
     // Загрузка встреч
     setLoadingApps(true);
-    fetch("http://0.0.0.0:4000/apps")
+    fetch("http://192.168.1.11:4000/apps")
       .then((res) => res.json())
       .then((data) => {
         const filteredApps = data.filter((app) => app.doctor === doctor.id);
@@ -190,7 +190,7 @@ function Cabinet() {
         return;
       }
 
-      endpoint = `http://0.0.0.0:4000/lab/update/${selectedLabId}`;
+      endpoint = `http://192.168.1.11:4000/lab/update/${selectedLabId}`;
       payload = { analise: labAnalysis, ready: isReady };
     } else {
       if (!saveTarget) {
@@ -216,7 +216,7 @@ function Cabinet() {
           return;
         }
 
-        endpoint = `http://0.0.0.0:4000/dia/update/${selectedDiagnosisId}`;
+        endpoint = `http://192.168.1.11:4000/dia/update/${selectedDiagnosisId}`;
         payload = { about: diagnosisText };
       } else if (saveTarget === "offer") {
         if (!selectedOfferId) {
@@ -230,7 +230,7 @@ function Cabinet() {
           return;
         }
 
-        endpoint = `http://0.0.0.0:4000/offer/update/${selectedOfferId}`;
+        endpoint = `http://192.168.1.11:4000/offer/update/${selectedOfferId}`;
         payload = { about: offersText };
       }
     }
@@ -259,7 +259,7 @@ function Cabinet() {
           isClosable: true,
         });
         closeModal();
-        return fetch("http://0.0.0.0:4000/clients")
+        return fetch("http://192.168.1.11:4000/clients")
           .then((res) => res.json())
           .then((data) => {
             const filteredClients = data.filter(

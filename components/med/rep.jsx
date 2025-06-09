@@ -83,7 +83,7 @@ function ReportCreatePage() {
     }
 
     try {
-      await axios.post("http://0.0.0.0:4000/rep/new", {
+      await axios.post("http://192.168.1.11:4000/rep/new", {
         title: name,
         desc: editor.getHTML(),
         reportId: id,

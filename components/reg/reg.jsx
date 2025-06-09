@@ -21,15 +21,15 @@ function Reg({
         let body = { name, clientId, price };
 
         if (labId) {
-          endpoint = "http://0.0.0.0:4000/lab/new";
+          endpoint = "http://192.168.1.11:4000/lab/new";
           body.labId = labId;
           body.analise = analise;
         } else if (diaId) {
-          endpoint = "http://0.0.0.0:4000/dia/new";
+          endpoint = "http://192.168.1.11:4000/dia/new";
           body.diaId = diaId;
           body.analise = analise;
         } else if (offerId) {
-          endpoint = "http://0.0.0.0:4000/offer/new";
+          endpoint = "http://192.168.1.11:4000/offer/new";
           body = { clientId, offerId, price, name };
         } else {
           return;

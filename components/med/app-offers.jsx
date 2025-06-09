@@ -60,7 +60,7 @@ function AppOffers() {
     try {
       if (isEditing) {
         await axios.put(
-          `http://0.0.0.0:4000/appo/update/${editingId}`,
+          `http://192.168.1.11:4000/appo/update/${editingId}`,
           formData
         );
         toast({
@@ -71,7 +71,7 @@ function AppOffers() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://0.0.0.0:4000/appo/new", formData);
+        await axios.post("http://192.168.1.11:4000/appo/new", formData);
         toast({
           title: "Услуга создан.",
           status: "success",
@@ -101,7 +101,7 @@ function AppOffers() {
 
   const handleDeleteBase = async (id) => {
     try {
-      await axios.delete(`http://0.0.0.0:4000/appo/delete/${id}`);
+      await axios.delete(`http://192.168.1.11:4000/appo/delete/${id}`);
       toast({
         title: "Услуга удалён.",
         status: "success",

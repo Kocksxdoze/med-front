@@ -127,7 +127,7 @@ export default function PatientPage() {
   } = useDisclosure();
 
   const fetchPatientData = async () => {
-    const res = await fetch(`http://0.0.0.0:4000/client/${id}`);
+    const res = await fetch(`http://192.168.1.11:4000/client/${id}`);
     const data = await res.json();
     setPatientData(data);
 
@@ -215,7 +215,7 @@ export default function PatientPage() {
       };
     }
 
-    await fetch(`http://0.0.0.0:4000/client/edit/${id}`, {
+    await fetch(`http://192.168.1.11:4000/client/edit/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatePayload),

@@ -69,11 +69,11 @@ function Appointment() {
   const loadData = async () => {
     try {
       const [types, benefits, offers, doctors, apps] = await Promise.all([
-        safeGet("http://0.0.0.0:4000/types"),
-        safeGet("http://0.0.0.0:4000/benefits"),
-        safeGet("http://0.0.0.0:4000/offers"),
-        safeGet("http://0.0.0.0:4000/doctors"),
-        safeGet("http://0.0.0.0:4000/apps"),
+        safeGet("http://192.168.1.11:4000/types"),
+        safeGet("http://192.168.1.11:4000/benefits"),
+        safeGet("http://192.168.1.11:4000/offers"),
+        safeGet("http://192.168.1.11:4000/doctors"),
+        safeGet("http://192.168.1.11:4000/apps"),
       ]);
 
       setTypes(types);
@@ -113,7 +113,7 @@ function Appointment() {
   const handleSubmit = async () => {
     try {
       const response = await axios.post(
-        "http://0.0.0.0:4000/app/new",
+        "http://192.168.1.11:4000/app/new",
         formData
       );
       toast({

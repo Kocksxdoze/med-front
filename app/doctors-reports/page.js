@@ -46,7 +46,9 @@ function OffersReports() {
     try {
       setLoading(true);
 
-      const categoriesResponse = await axios.get("http://0.0.0.0:4000/reports");
+      const categoriesResponse = await axios.get(
+        "http://192.168.1.11:4000/reports"
+      );
       const allCategories = categoriesResponse.data;
 
       const labCategory = allCategories.find((cat) =>
@@ -66,7 +68,7 @@ function OffersReports() {
       setLabCategory(labCategory);
 
       const reportsResponse = await axios.get(
-        `http://0.0.0.0:4000/report/${labCategory.id}`
+        `http://192.168.1.11:4000/report/${labCategory.id}`
       );
       const labReports = reportsResponse.data?.reportsTo || [];
 

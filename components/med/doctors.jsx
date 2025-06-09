@@ -79,7 +79,7 @@ function Doctors() {
     try {
       if (formData.id) {
         await axios.put(
-          `http://0.0.0.0:4000/doctor/edit/${formData.id}`,
+          `http://192.168.1.11:4000/doctor/edit/${formData.id}`,
           formData
         );
         toast({
@@ -90,7 +90,7 @@ function Doctors() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://0.0.0.0:4000/register", formData);
+        await axios.post("http://192.168.1.11:4000/register", formData);
         toast({
           title: "Врач успешно создан.",
           status: "success",
@@ -130,7 +130,7 @@ function Doctors() {
 
   const handleDeleteDoctor = async (id) => {
     try {
-      await axios.delete(`http://0.0.0.0:4000/doctor/delete/${id}`);
+      await axios.delete(`http://192.168.1.11:4000/doctor/delete/${id}`);
       toast({
         title: "Врач удалён.",
         status: "success",

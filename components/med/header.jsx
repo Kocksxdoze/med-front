@@ -50,7 +50,7 @@ function Header() {
 
   useEffect(() => {
     const fetchReports = async () => {
-      const response = await fetch("http://0.0.0.0:4000/reports");
+      const response = await fetch("http://192.168.1.11:4000/reports");
       const data = await response.json();
       if (response.ok) {
         setReports(data);
@@ -61,7 +61,7 @@ function Header() {
 
   const clients = async () => {
     try {
-      const response = await fetch("http://0.0.0.0:4000/clients");
+      const response = await fetch("http://192.168.1.11:4000/clients");
       const data = await response.json();
       console.log(data);
 
