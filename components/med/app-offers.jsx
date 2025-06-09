@@ -24,15 +24,13 @@ import {
   ModalCloseButton,
   FormControl,
   FormLabel,
-  Select,
   useToast,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
 
-function Reports() {
-  const [reports, setReports] = useState([]);
-  const [categories, setCategories] = useState([]); // Состояние для категорий
+function AppOffers() {
+  const [bases, setBases] = useState([]);
   const [search, setSearch] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -40,98 +38,78 @@ function Reports() {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
+    desc: "",
   });
 
-  // Загрузка подкатегорий
-  async function loadreports() {
-    const data = await fetcher("reports");
-    setReports(Array.isArray(data) ? data : []);
-  }
-
-  // Загрузка категорий
-  async function loadCategories() {
-    const data = await fetcher("doctors");
-    setCategories(Array.isArray(data) ? data : []);
+  async function loadbases() {
+    const data = await fetcher("appos");
+    setBases(Array.isArray(data) ? data : []);
   }
 
   useEffect(() => {
-    loadreports();
-    loadCategories();
+    loadbases();
   }, []);
 
-  const filteredreports = reports.filter((report) =>
-    [report?.id, report?.name, report?.createdAt].some((field) =>
+  const filteredbases = bases.filter((base) =>
+    [base?.id, base?.name, base?.createdAt].some((field) =>
       field?.toString().toLowerCase().includes(search.toLowerCase())
     )
   );
 
-  const handleCreatereport = async () => {
-    if (!formData.name || formData.name.trim() === "") {
-      toast({
-        title: "Имя отчета обязательно.",
-        status: "warning",
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
+  const handleCreatebase = async () => {
     try {
       if (isEditing) {
-        //
         await axios.put(
-          `http://localhost:4000/report/edit/${editingId}`,
+          `http://localhost:4000/appo/update/${editingId}`,
           formData
         );
         toast({
-          title: "Отчет обновлен.",
+          title: "Услуга обновлён.",
           status: "success",
           duration: 3000,
           isClosable: true,
           position: "bottom-right",
         });
       } else {
-        // Создание
-        await axios.post("http://localhost:4000/report/create", formData);
+        await axios.post("http://localhost:4000/appo/new", formData);
         toast({
-          title: "Отчет создан.",
+          title: "Услуга создан.",
           status: "success",
           duration: 3000,
           isClosable: true,
           position: "bottom-right",
         });
       }
-      loadreports();
+
+      loadbases();
       onClose();
       setFormData({
         name: "",
-        reportCategory: "",
         desc: "",
-        doctorId: "",
-        createdAt: "",
       });
     } catch (error) {
       toast({
-        title: "Ошибка при сохранении отчета.",
+        title: "Ошибка при создании филлиала.",
         description: error.response?.data?.message || "Попробуйте снова позже.",
         status: "error",
         duration: 4000,
         isClosable: true,
       });
-      console.error("Ошибка при сохранении отчета:", error);
+      console.error("Ошибка при создании врача:", error);
     }
   };
 
-  const handleDeletereport = async (id) => {
+  const handleDeleteBase = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/report/delete/${id}`);
+      await axios.delete(`http://localhost:4000/appo/delete/${id}`);
       toast({
-        title: "Подкатегория удалена.",
+        title: "Услуга удалён.",
         status: "success",
         duration: 3000,
         isClosable: true,
         position: "bottom-right",
       });
-      loadreports();
+      loadbases();
     } catch (error) {
       toast({
         title: "Ошибка при удалении.",
@@ -140,38 +118,27 @@ function Reports() {
         duration: 4000,
         isClosable: true,
       });
-      console.error("Ошибка при удалении подкатегории:", error);
+      console.error("Ошибка при удалении Услугаа:", error);
     }
   };
 
-  const handleEditreport = (report) => {
+  const handleEditBase = (base) => {
     setIsEditing(true);
-    setEditingId(report.id);
-    setFormData({
-      name: report.name,
-      reportCategory: report.reportCategory,
-      desc: report.desc || "",
-      doctorId: report.doctorId || "",
-      createdAt: report.createdAt || "",
-    });
+    setEditingId(base.id);
+    setFormData({ name: base.name, desc: base.desc });
     onOpen();
   };
+
   const handleClose = () => {
     onClose();
     setIsEditing(false);
     setEditingId(null);
-    setFormData({
-      name: "",
-      reportCategory: "",
-      desc: "",
-      doctorId: "",
-      createdAt: "",
-    });
+    setFormData({ name: "", desc: "" });
   };
 
   return (
     <Box p={4} borderRadius="16px" w="100%" overflowX="auto" bg="#fff">
-      <Flex justify="space-between" mb={4} gap={4}>
+      <Flex justify="space-between" mb={4} flexWrap="wrap" gap={4}>
         <InputGroup w={{ base: "100%", md: "50%" }}>
           <Input
             placeholder="Поиск по любому параметру"
@@ -186,8 +153,8 @@ function Reports() {
             <SearchIcon color="black.500" />
           </InputRightElement>
         </InputGroup>
-        <Button w={"auto"} colorScheme="blue" onClick={onOpen}>
-          Создать
+        <Button colorScheme="blue" onClick={onOpen}>
+          Создать Услугу
         </Button>
       </Flex>
 
@@ -196,37 +163,32 @@ function Reports() {
           <Thead position="sticky" top={0} zIndex={1} bg="white">
             <Tr>
               <Th>id</Th>
-              <Th>Категория отчета</Th>
-              <Th>Количество отчетов у категории</Th>
+              <Th>Название Услуги</Th>
+              <Th>Описание</Th>
               <Th>Создан</Th>
-              <Th>Обновлен</Th>
+              <Th>Действия</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {filteredreports.map((report) => (
-              <Tr key={report.id}>
-                <Td>{report.id}</Td>
-                <Td>{report.name}</Td>
-                <Td>{report.reportsTo?.length || 0}</Td>
-                <Td>
-                  {new Date(report.createdAt).toISOString().split("T")[0]}
-                </Td>
-                <Td>
-                  {new Date(report.updatedAt).toISOString().split("T")[0]}
-                </Td>
+            {filteredbases.map((base) => (
+              <Tr key={base.id}>
+                <Td>{base.id}</Td>
+                <Td>{base.name}</Td>
+                <Td>{base.desc || "Описания нет"}</Td>
+                <Td>{new Date(base.createdAt).toISOString().split("T")[0]}</Td>
                 <Td>
                   <Flex gap={2}>
                     <Button
                       size="xs"
                       colorScheme="yellow"
-                      onClick={() => handleEditreport(report)}
+                      onClick={() => handleEditBase(base)}
                     >
                       Редактировать
                     </Button>
                     <Button
                       size="xs"
                       colorScheme="red"
-                      onClick={() => handleDeletereport(report.id)}
+                      onClick={() => handleDeleteBase(base.id)}
                     >
                       Удалить
                     </Button>
@@ -242,21 +204,32 @@ function Reports() {
       <Modal isOpen={isOpen} onClose={onClose} size="2xl">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Создание отчета</ModalHeader>
+          <ModalHeader>Создание Услуги</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl mb={3}>
-              <FormLabel>Категория отчета</FormLabel>
+              <FormLabel>Имя услуги</FormLabel>
               <Input
                 value={formData.name}
                 onChange={(e) =>
-                  setFormData({ formData, name: e.target.value })
+                  setFormData({ ...formData, name: e.target.value })
                 }
-                placeholder="Введите имя категории"
+                placeholder="Введите имя услуги"
               />
             </FormControl>
 
-            <Button colorScheme="blue" mr={3} onClick={handleCreatereport}>
+            <FormControl mb={3}>
+              <FormLabel>Описание услуги</FormLabel>
+              <Input
+                value={formData.desc}
+                onChange={(e) =>
+                  setFormData({ ...formData, desc: e.target.value })
+                }
+                placeholder="Введите описание"
+              />
+            </FormControl>
+
+            <Button colorScheme="blue" mr={3} onClick={handleCreatebase}>
               {isEditing ? "Сохранить" : "Создать"}
             </Button>
           </ModalBody>
@@ -266,4 +239,4 @@ function Reports() {
   );
 }
 
-export default Reports;
+export default AppOffers;

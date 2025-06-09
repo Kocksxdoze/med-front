@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import jwt from "jsonwebtoken";
 
 function LoginForm() {
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -27,7 +28,7 @@ function LoginForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch("http://192.168.1.13:4000/login", {
+      const response = await fetch("http://localhost:4000/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -36,6 +37,11 @@ function LoginForm() {
       const data = await response.json();
       if (response.ok) {
         Cookies.set("token", data.token, { expires: 0.02 });
+
+        // Decode the token to get user role
+        const decoded = jwt.decode(data.token);
+        const userRole = decoded?.role;
+
         toast({
           title: `Добро пожаловать ${formData.username}!`,
           status: "info",
@@ -43,7 +49,25 @@ function LoginForm() {
           position: "bottom-right",
           isClosable: true,
         });
-        router.push("/");
+
+        // Redirect based on role
+        switch (userRole) {
+          case "admin":
+            router.push("/");
+            break;
+          case "registration":
+            router.push("/register");
+            break;
+          case "accountant":
+            router.push("/cashbox");
+            break;
+          case "doctors":
+          case "laboratory":
+            router.push("/cabinet");
+            break;
+          default:
+            router.push("/");
+        }
       } else {
         toast({
           title: "Ошибка входа",
@@ -51,7 +75,6 @@ function LoginForm() {
           status: "error",
           duration: 3000,
           position: "bottom-right",
-
           isClosable: true,
         });
       }
@@ -62,7 +85,6 @@ function LoginForm() {
         status: "error",
         duration: 3000,
         position: "bottom-right",
-
         isClosable: true,
       });
     }

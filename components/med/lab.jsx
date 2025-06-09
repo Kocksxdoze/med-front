@@ -37,7 +37,7 @@ function Lab() {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
-    price: "",
+    sum: "",
     about: "",
     table: "",
     analise: "",
@@ -46,7 +46,7 @@ function Lab() {
 
   const loadDias = async () => {
     try {
-      const res = await axios.get("http://192.168.1.13:4000/labs");
+      const res = await axios.get("http://localhost:4000/lab-categories");
       setDias(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error("Ошибка при загрузке Лаборатории:", error);
@@ -61,7 +61,7 @@ function Lab() {
     [
       dia?.id,
       dia?.name,
-      dia?.price,
+      dia?.sum,
       dia?.about,
       dia?.table,
       dia?.analise,
@@ -75,7 +75,7 @@ function Lab() {
     try {
       if (isEditing) {
         await axios.put(
-          `http://192.168.1.13:4000/lab/update/${editingId}`,
+          `http://localhost:4000/lab-category/update/${editingId}`,
           formData
         );
         toast({
@@ -85,7 +85,7 @@ function Lab() {
           isClosable: true,
         });
       } else {
-        await axios.post("http://192.168.1.13:4000/lab/new", formData);
+        await axios.post("http://localhost:4000/lab-category/new", formData);
         toast({
           title: "Лаборатория создан.",
           status: "success",
@@ -108,7 +108,7 @@ function Lab() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.13:4000/lab/delete/${id}`);
+      await axios.delete(`http://localhost:4000/lab-category/delete/${id}`);
       toast({
         title: "Лаборатория удалён.",
         status: "success",
@@ -133,7 +133,7 @@ function Lab() {
     setFormData({
       name: dia.name,
       about: dia.about,
-      price: dia.price,
+      sum: dia.sum,
       analise: dia.analise,
       ready: dia.ready,
     });
@@ -165,7 +165,7 @@ function Lab() {
           </InputRightElement>
         </InputGroup>
         <Button colorScheme="blue" onClick={onOpen}>
-          Создать Лабораторию
+          Создать Категорию лаборатории
         </Button>
       </Flex>
 
@@ -176,10 +176,8 @@ function Lab() {
               <Th>ID</Th>
               <Th>Название</Th>
               <Th>Цена</Th>
-              <Th>Описание</Th>
-              <Th>Таблица Лаборатория для клиента</Th>
               <Th>Анализ</Th>
-              <Th>Готовность</Th>
+              <Th>Создан</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -187,11 +185,9 @@ function Lab() {
               <Tr key={dia.id}>
                 <Td>{dia.id}</Td>
                 <Td>{dia.name}</Td>
-                <Td>{dia.price}</Td>
+                <Td>{dia.sum}</Td>
                 <Td>{dia.about}</Td>
-                <Td>{dia.table}</Td>
-                <Td>{dia.analise}</Td>
-                <Td>{dia.clientId}</Td>
+                <Td>{new Date(dia.createdAt).toLocaleString()}</Td>
 
                 <Td>
                   <Flex gap={2}>
@@ -237,44 +233,24 @@ function Lab() {
               />
             </FormControl>
             <FormControl mb={3}>
-              <FormLabel>Описание</FormLabel>
+              <FormLabel>Название анализа</FormLabel>
               <Input
                 value={formData.about}
                 onChange={(e) =>
                   setFormData({ ...formData, about: e.target.value })
                 }
-                placeholder="Введите описание"
+                placeholder="Введите название анализа"
               />
             </FormControl>
             <FormControl mb={3}>
               <FormLabel>Цена</FormLabel>
               <Input
-                value={formData.price}
+                value={formData.sum}
                 onChange={(e) =>
-                  setFormData({ ...formData, price: e.target.value })
+                  setFormData({ ...formData, sum: e.target.value })
                 }
                 placeholder="Введите цену"
               />
-              <FormControl mb={3}>
-                <FormLabel>Анализ</FormLabel>
-                <Input
-                  value={formData.analise}
-                  onChange={(e) =>
-                    setFormData({ ...formData, analise: e.target.value })
-                  }
-                  placeholder="Введите тип анализа"
-                />
-              </FormControl>
-              <FormControl mb={3}>
-                <FormLabel>Готовность</FormLabel>
-                <Input
-                  value={formData.ready}
-                  onChange={(e) =>
-                    setFormData({ ...formData, ready: e.target.value })
-                  }
-                  placeholder="Введите готовность"
-                />
-              </FormControl>
             </FormControl>
             <Button colorScheme="blue" mr={3} onClick={handleCreateOrUpdate}>
               {isEditing ? "Сохранить" : "Создать"}

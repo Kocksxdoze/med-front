@@ -19,6 +19,11 @@ import {
   Divider,
   chakra,
   Flex,
+  Checkbox,
+  CheckboxGroup,
+  Stack,
+  VStack,
+  Heading,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
@@ -105,7 +110,14 @@ export default function PatientPage() {
   const [patientData, setPatientData] = useState(null);
   const [formState, setFormState] = useState({});
   const [editType, setEditType] = useState(null);
-  const [paymentType, setPaymentType] = useState("payment"); // 'payment' или 'deduction'
+  const [paymentType, setPaymentType] = useState("payment");
+  const [selectedItems, setSelectedItems] = useState({
+    info: true,
+    labs: [],
+    diagnostics: [],
+    offers: [],
+  });
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const componentRef = useRef();
 
   const {
@@ -115,9 +127,22 @@ export default function PatientPage() {
   } = useDisclosure();
 
   const fetchPatientData = async () => {
-    const res = await fetch(`http://192.168.1.13:4000/client/${id}`);
+    const res = await fetch(`http://localhost:4000/client/${id}`);
     const data = await res.json();
     setPatientData(data);
+
+    // Инициализируем выбранные элементы после загрузки данных
+    if (data) {
+      const initialSelected = {
+        info: true,
+        labs: data.labs ? data.labs.map((_, i) => i.toString()) : [],
+        diagnostics: data.diagnostics
+          ? data.diagnostics.map((_, i) => i.toString())
+          : [],
+        offers: data.offers ? data.offers.map((_, i) => i.toString()) : [],
+      };
+      setSelectedItems(initialSelected);
+    }
   };
 
   useEffect(() => {
@@ -147,7 +172,7 @@ export default function PatientPage() {
       });
     } else {
       setFormState({ paymentAmount: "" });
-      setPaymentType("payment"); // По умолчанию установка платежа
+      setPaymentType("payment");
     }
     onModalOpen();
   };
@@ -168,13 +193,11 @@ export default function PatientPage() {
       const currentDebt = parseFloat(patientData.debt) || 0;
 
       if (paymentType === "payment") {
-        // Внесение оплаты: увеличиваем баланс, уменьшаем долг
         updatePayload = {
           balance: currentBalance + amount,
           debt: Math.max(0, currentDebt - amount),
         };
       } else {
-        // Списание средств: уменьшаем баланс, увеличиваем долг
         updatePayload = {
           balance: Math.max(0, currentBalance - amount),
           debt: currentDebt + amount,
@@ -192,7 +215,7 @@ export default function PatientPage() {
       };
     }
 
-    await fetch(`http://192.168.1.13:4000/client/edit/${id}`, {
+    await fetch(`http://localhost:4000/client/edit/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatePayload),
@@ -203,6 +226,14 @@ export default function PatientPage() {
     onModalClose();
   };
 
+  const handlePrintModalOpen = () => {
+    setIsPrintModalOpen(true);
+  };
+
+  const handlePrintModalClose = () => {
+    setIsPrintModalOpen(false);
+  };
+
   const handlePrint = () => {
     if (!componentRef.current) {
       alert("Нет контента для печати");
@@ -210,12 +241,12 @@ export default function PatientPage() {
     }
 
     const printContents = componentRef.current.innerHTML;
-    const newWindow = window.open("", "_blank", "width=900,height=700");
+    const newWindow = window.open("", "_blank");
 
     newWindow.document.write(`
       <html>
         <head>
-          <title>Печать медицинского документа</title>
+          <title>ROSHIDON medical center</title>
           <style>
             body {
               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -236,21 +267,202 @@ export default function PatientPage() {
             th {
               background-color: #eee;
             }
-            h1, h2, h3, h4, h5, h6, p, div {
-              margin: 0 0 1rem 0;
+            .header {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .header-title {
+              font-size: 24px;
+              font-weight: bold;
+            }
+            #logo {
+              width: 150px;
+              height: 120px;
+            }
+            .info-section {
+              margin-bottom: 20px;
+            }
+            .print-section {
+              margin-bottom: 30px;
             }
           </style>
         </head>
         <body>
+          <div class="header">
+            <img id="logo" src="/roshidonbg.png" alt="ROSHIDON Logo" />
+          </div>
           ${printContents}
         </body>
       </html>
     `);
 
     newWindow.document.close();
-    newWindow.focus();
-    newWindow.print();
-    newWindow.close();
+    setTimeout(() => {
+      newWindow.focus();
+      newWindow.print();
+      newWindow.close();
+    }, 50);
+    setIsPrintModalOpen(false);
+  };
+
+  const generatePrintableContent = () => {
+    const content = [];
+
+    if (selectedItems.info) {
+      content.push(`
+        <div class="info-section">
+          <h1 style="text-align:center;">ROSHIDON <br/><span style="font-size: 0.75em;">medical center</span></h1>
+          <p>Ф.И.О: ${patientData.surname || ""} ${patientData.name || ""} ${
+        patientData.lastName || ""
+      }</p>
+          <p>Дата: ${new Date().toLocaleString("ru-RU")}</p>
+          <p>Возраст: ${calculateAge(patientData.dateBirth) || ""}</p>
+          <p>Телефон: ${patientData.phoneNumber || ""}</p>
+          <p>Баланс: ${patientData.balance || 0} UZS</p>
+          <p>Долг: ${patientData.debt || 0} UZS</p>
+          <p>Регистратор: ${patientData.registrator || 0}</p>
+          <hr/>
+        </div>
+      `);
+    }
+
+    if (
+      selectedItems.labs.length > 0 &&
+      patientData.labs &&
+      patientData.labs.length
+    ) {
+      content.push('<div class="print-section">');
+      content.push("<h2>Лабораторные исследования</h2>");
+
+      const keys = Object.keys(patientData.labs[0]).filter((k) => k !== "id");
+      const header = keys.map((k) => `<th>${translateColumn(k)}</th>`).join("");
+
+      selectedItems.labs.forEach((index) => {
+        const lab = patientData.labs[parseInt(index)];
+        if (lab) {
+          const cells = keys
+            .map((k) => {
+              const value =
+                k === "ready" ? (lab[k] ? "Да" : "Нет") : lab[k] ?? "";
+              return `<td>${value}</td>`;
+            })
+            .join("");
+
+          content.push(`
+            <table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
+              <thead><tr>${header}</tr></thead>
+              <tbody><tr>${cells}</tr></tbody>
+            </table>
+          `);
+        }
+      });
+
+      content.push("</div>");
+    }
+
+    if (
+      selectedItems.diagnostics.length > 0 &&
+      patientData.diagnostics &&
+      patientData.diagnostics.length
+    ) {
+      content.push('<div class="print-section">');
+      content.push("<h2>Диагностика</h2>");
+
+      const keys = Object.keys(patientData.diagnostics[0]).filter(
+        (k) => k !== "id"
+      );
+      const header = keys.map((k) => `<th>${translateColumn(k)}</th>`).join("");
+
+      selectedItems.diagnostics.forEach((index) => {
+        const diag = patientData.diagnostics[parseInt(index)];
+        if (diag) {
+          const cells = keys
+            .map((k) => {
+              const value =
+                k === "ready" ? (diag[k] ? "Да" : "Нет") : diag[k] ?? "";
+              return `<td>${value}</td>`;
+            })
+            .join("");
+
+          content.push(`
+            <table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
+              <thead><tr>${header}</tr></thead>
+              <tbody><tr>${cells}</tr></tbody>
+            </table>
+          `);
+        }
+      });
+
+      content.push("</div>");
+    }
+
+    if (
+      selectedItems.offers.length > 0 &&
+      patientData.offers &&
+      patientData.offers.length
+    ) {
+      content.push('<div class="print-section">');
+      content.push("<h2>Услуги</h2>");
+
+      const keys = Object.keys(patientData.offers[0]).filter((k) => k !== "id");
+      const header = keys.map((k) => `<th>${translateColumn(k)}</th>`).join("");
+
+      selectedItems.offers.forEach((index) => {
+        const offer = patientData.offers[parseInt(index)];
+        if (offer) {
+          const cells = keys.map((k) => `<td>${offer[k] ?? ""}</td>`).join("");
+
+          content.push(`
+            <table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
+              <thead><tr>${header}</tr></thead>
+              <tbody><tr>${cells}</tr></tbody>
+            </table>
+          `);
+        }
+      });
+
+      content.push("</div>");
+    }
+
+    return content.join("");
+  };
+
+  const toggleAllItems = (category) => {
+    if (!patientData || !patientData[category]) return;
+
+    if (selectedItems[category].length === patientData[category].length) {
+      // Все выбраны - снимаем все
+      setSelectedItems((prev) => ({
+        ...prev,
+        [category]: [],
+      }));
+    } else {
+      // Выбираем все
+      setSelectedItems((prev) => ({
+        ...prev,
+        [category]: patientData[category].map((_, i) => i.toString()),
+      }));
+    }
+  };
+
+  const toggleItem = (category, index) => {
+    const indexStr = index.toString();
+    setSelectedItems((prev) => {
+      const currentItems = [...prev[category]];
+      const itemIndex = currentItems.indexOf(indexStr);
+
+      if (itemIndex === -1) {
+        currentItems.push(indexStr);
+      } else {
+        currentItems.splice(itemIndex, 1);
+      }
+
+      return {
+        ...prev,
+        [category]: currentItems,
+      };
+    });
   };
 
   if (!patientData) return <Text>Загрузка...</Text>;
@@ -390,7 +602,7 @@ export default function PatientPage() {
             <Button colorScheme="yellow" onClick={() => openEdit("info")}>
               Изменить личные данные
             </Button>
-            <Button colorScheme="green" onClick={handlePrint}>
+            <Button colorScheme="green" onClick={handlePrintModalOpen}>
               Распечатать документ
             </Button>
           </Box>
@@ -509,113 +721,161 @@ export default function PatientPage() {
         </ModalContent>
       </Modal>
 
-      {/* Скрытый блок для печати */}
+      {/* Модальное окно для выбора таблиц для печати */}
+      <Modal
+        isOpen={isPrintModalOpen}
+        onClose={handlePrintModalClose}
+        size="xl"
+        isCentered
+        scrollBehavior="inside"
+      >
+        <ModalOverlay />
+        <ModalContent maxH="90vh">
+          <ModalHeader>Выберите данные для печати</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack align="stretch" spacing={6}>
+              <Box>
+                <Checkbox
+                  isChecked={selectedItems.info}
+                  onChange={(e) =>
+                    setSelectedItems((prev) => ({
+                      ...prev,
+                      info: e.target.checked,
+                    }))
+                  }
+                >
+                  Основная информация
+                </Checkbox>
+              </Box>
+
+              {patientData?.labs?.length > 0 && (
+                <Box>
+                  <Heading size="sm" mb={2}>
+                    Лабораторные анализы
+                  </Heading>
+                  <Checkbox
+                    isChecked={
+                      selectedItems.labs.length === patientData.labs.length
+                    }
+                    isIndeterminate={
+                      selectedItems.labs.length > 0 &&
+                      selectedItems.labs.length < patientData.labs.length
+                    }
+                    onChange={() => toggleAllItems("labs")}
+                    mb={2}
+                  >
+                    Выбрать все
+                  </Checkbox>
+                  <Stack pl={6} spacing={1}>
+                    {patientData.labs.map((item, index) => (
+                      <Checkbox
+                        key={index}
+                        isChecked={selectedItems.labs.includes(
+                          index.toString()
+                        )}
+                        onChange={() => toggleItem("labs", index)}
+                      >
+                        {item.name || `Анализ ${index + 1}`}
+                      </Checkbox>
+                    ))}
+                  </Stack>
+                </Box>
+              )}
+
+              {patientData?.diagnostics?.length > 0 && (
+                <Box>
+                  <Heading size="sm" mb={2}>
+                    Диагностика
+                  </Heading>
+                  <Checkbox
+                    isChecked={
+                      selectedItems.diagnostics.length ===
+                      patientData.diagnostics.length
+                    }
+                    isIndeterminate={
+                      selectedItems.diagnostics.length > 0 &&
+                      selectedItems.diagnostics.length <
+                        patientData.diagnostics.length
+                    }
+                    onChange={() => toggleAllItems("diagnostics")}
+                    mb={2}
+                  >
+                    Выбрать все
+                  </Checkbox>
+                  <Stack pl={6} spacing={1}>
+                    {patientData.diagnostics.map((item, index) => (
+                      <Checkbox
+                        key={index}
+                        isChecked={selectedItems.diagnostics.includes(
+                          index.toString()
+                        )}
+                        onChange={() => toggleItem("diagnostics", index)}
+                      >
+                        {item.name || `Диагностика ${index + 1}`}
+                      </Checkbox>
+                    ))}
+                  </Stack>
+                </Box>
+              )}
+
+              {patientData?.offers?.length > 0 && (
+                <Box>
+                  <Heading size="sm" mb={2}>
+                    Услуги
+                  </Heading>
+                  <Checkbox
+                    isChecked={
+                      selectedItems.offers.length === patientData.offers.length
+                    }
+                    isIndeterminate={
+                      selectedItems.offers.length > 0 &&
+                      selectedItems.offers.length < patientData.offers.length
+                    }
+                    onChange={() => toggleAllItems("offers")}
+                    mb={2}
+                  >
+                    Выбрать все
+                  </Checkbox>
+                  <Stack pl={6} spacing={1}>
+                    {patientData.offers.map((item, index) => (
+                      <Checkbox
+                        key={index}
+                        isChecked={selectedItems.offers.includes(
+                          index.toString()
+                        )}
+                        onChange={() => toggleItem("offers", index)}
+                      >
+                        {item.name || `Услуга ${index + 1}`}
+                      </Checkbox>
+                    ))}
+                  </Stack>
+                </Box>
+              )}
+            </VStack>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={handlePrintModalClose}>
+              Отмена
+            </Button>
+            <Button
+              colorScheme="green"
+              onClick={() => {
+                componentRef.current.innerHTML = generatePrintableContent();
+                handlePrint();
+              }}
+            >
+              Печать
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
       <Box
         ref={componentRef}
         display="none"
         dangerouslySetInnerHTML={{
-          __html: `
-      <h1>Медицинский документ</h1>
-      <p>Ф.И.О: ${patientData.surname || ""} ${patientData.name || ""} ${
-            patientData.lastName || ""
-          }</p>
-      <p>Дата: ${new Date().toLocaleString("ru-RU")}</p>
-      <p>Возраст: ${calculateAge(patientData.dateBirth) || ""}</p>
-      <p>Телефон: ${patientData.phoneNumber || ""}</p>
-      <p>Баланс: ${patientData.balance || 0} UZS</p>
-      <p>Долг: ${patientData.debt || 0} UZS</p>
-      <hr/>
-
-      <h2>Лабораторные исследования</h2>
-      ${
-        patientData.labs && patientData.labs.length
-          ? (() => {
-              const keys = Object.keys(patientData.labs[0]).filter(
-                (k) => k !== "id"
-              );
-              const rows = patientData.labs
-                .map((lab) => {
-                  const cells = keys
-                    .map((k) => {
-                      const value =
-                        k === "ready" ? (lab[k] ? "Да" : "Нет") : lab[k] ?? "";
-                      return `<td>${value}</td>`;
-                    })
-                    .join("");
-                  return `<tr>${cells}</tr>`;
-                })
-                .join("");
-              const header = keys
-                .map((k) => `<th>${translateColumn(k)}</th>`)
-                .join("");
-              return `<table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;">
-                <thead><tr>${header}</tr></thead>
-                <tbody>${rows}</tbody>
-              </table>`;
-            })()
-          : "<p>Нет данных</p>"
-      }
-
-      <h2>Диагностика</h2>
-      ${
-        patientData.diagnostics && patientData.diagnostics.length
-          ? (() => {
-              const keys = Object.keys(patientData.diagnostics[0]).filter(
-                (k) => k !== "id"
-              );
-              const rows = patientData.diagnostics
-                .map((diag) => {
-                  const cells = keys
-                    .map((k) => {
-                      const value =
-                        k === "ready"
-                          ? diag[k]
-                            ? "Да"
-                            : "Нет"
-                          : diag[k] ?? "";
-                      return `<td>${value}</td>`;
-                    })
-                    .join("");
-                  return `<tr>${cells}</tr>`;
-                })
-                .join("");
-              const header = keys
-                .map((k) => `<th>${translateColumn(k)}</th>`)
-                .join("");
-              return `<table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;">
-                <thead><tr>${header}</tr></thead>
-                <tbody>${rows}</tbody>
-              </table>`;
-            })()
-          : "<p>Нет данных</p>"
-      }
-
-      <h2>Услуги</h2>
-      ${
-        patientData.offers && patientData.offers.length
-          ? (() => {
-              const keys = Object.keys(patientData.offers[0]).filter(
-                (k) => k !== "id"
-              );
-              const rows = patientData.offers
-                .map((offer) => {
-                  const cells = keys
-                    .map((k) => `<td>${offer[k] ?? ""}</td>`)
-                    .join("");
-                  return `<tr>${cells}</tr>`;
-                })
-                .join("");
-              const header = keys
-                .map((k) => `<th>${translateColumn(k)}</th>`)
-                .join("");
-              return `<table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;">
-                <thead><tr>${header}</tr></thead>
-                <tbody>${rows}</tbody>
-              </table>`;
-            })()
-          : "<p>Нет данных</p>"
-      }
-    `,
+          __html: generatePrintableContent(),
         }}
       />
     </Box>

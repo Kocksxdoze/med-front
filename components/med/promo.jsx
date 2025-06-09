@@ -60,7 +60,7 @@ function Promo() {
     try {
       if (isEditing) {
         await axios.put(
-          `http://192.168.1.13:4000/promo/edit/${editingId}`,
+          `http://localhost:4000/promo/edit/${editingId}`,
           formData
         );
         toast({
@@ -71,7 +71,7 @@ function Promo() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://192.168.1.13:4000/promo/create", formData);
+        await axios.post("http://localhost:4000/promo/create", formData);
         toast({
           title: "Промокод создан.",
           status: "success",
@@ -101,7 +101,7 @@ function Promo() {
 
   const handleDeleteBase = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.13:4000/promo/delete/${id}`);
+      await axios.delete(`http://localhost:4000/promo/delete/${id}`);
       toast({
         title: "Филиал удалён.",
         status: "success",

@@ -58,7 +58,7 @@ function Main() {
             bg={"white"}
             shadow={"xl"}
             borderRadius={"8px"}
-            onClick={() => router.push("/reports/lab")}
+            onClick={() => router.push("/lab-reports")}
           >
             Отчеты по лаборатории
           </Button>
@@ -70,7 +70,7 @@ function Main() {
             bg={"white"}
             shadow={"xl"}
             borderRadius={"8px"}
-            onClick={() => router.push("/reports/doctors")}
+            onClick={() => router.push("/doctors-reports")}
           >
             Отчеты по врачам
           </Button>
@@ -82,7 +82,7 @@ function Main() {
             bg={"white"}
             shadow={"xl"}
             borderRadius={"8px"}
-            onClick={() => router.push("/reports/offers")}
+            onClick={() => router.push("/offers-reports")}
           >
             Отчеты по услугам
           </Button>

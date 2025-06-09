@@ -28,7 +28,7 @@ import {
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
 
-function Diagnostic() {
+function Lab() {
   const [dias, setDias] = useState([]);
   const [search, setSearch] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -37,7 +37,7 @@ function Diagnostic() {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
-    price: "",
+    sum: "",
     about: "",
     table: "",
     analise: "",
@@ -46,10 +46,10 @@ function Diagnostic() {
 
   const loadDias = async () => {
     try {
-      const res = await axios.get("http://192.168.1.13:4000/dias");
+      const res = await axios.get("http://localhost:4000/dia-categories");
       setDias(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
-      console.error("Ошибка при загрузке диагнозов:", error);
+      console.error("Ошибка при загрузке Диагностики:", error);
     }
   };
 
@@ -61,7 +61,7 @@ function Diagnostic() {
     [
       dia?.id,
       dia?.name,
-      dia?.price,
+      dia?.sum,
       dia?.about,
       dia?.table,
       dia?.analise,
@@ -75,19 +75,19 @@ function Diagnostic() {
     try {
       if (isEditing) {
         await axios.put(
-          `http://192.168.1.13:4000/dia/update/${editingId}`,
+          `http://localhost:4000/dia-category/update/${editingId}`,
           formData
         );
         toast({
-          title: "Диагноз обновлён.",
+          title: "Диагностика обновлёна.",
           status: "success",
           duration: 3000,
           isClosable: true,
         });
       } else {
-        await axios.post("http://192.168.1.13:4000/dia/new", formData);
+        await axios.post("http://localhost:4000/dia-category/new", formData);
         toast({
-          title: "Диагноз создан.",
+          title: "Диагностика создана.",
           status: "success",
           duration: 3000,
           isClosable: true,
@@ -108,9 +108,9 @@ function Diagnostic() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.13:4000/dia/delete/${id}`);
+      await axios.delete(`http://localhost:4000/dia-category/delete/${id}`);
       toast({
-        title: "Диагноз удалён.",
+        title: "Диагностика удалёна.",
         status: "success",
         duration: 3000,
         isClosable: true,
@@ -132,7 +132,10 @@ function Diagnostic() {
     setEditingId(dia.id);
     setFormData({
       name: dia.name,
-      description: dia.description,
+      about: dia.about,
+      sum: dia.sum,
+      analise: dia.analise,
+      ready: dia.ready,
     });
     onOpen();
   };
@@ -162,7 +165,7 @@ function Diagnostic() {
           </InputRightElement>
         </InputGroup>
         <Button colorScheme="blue" onClick={onOpen}>
-          Создать диагноз
+          Создать Категорию диагностики
         </Button>
       </Flex>
 
@@ -173,10 +176,8 @@ function Diagnostic() {
               <Th>ID</Th>
               <Th>Название</Th>
               <Th>Цена</Th>
-              <Th>Описание</Th>
-              <Th>Таблица диагноза для клиента</Th>
               <Th>Анализ</Th>
-              <Th>Готовность</Th>
+              <Th>Создан</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -184,11 +185,9 @@ function Diagnostic() {
               <Tr key={dia.id}>
                 <Td>{dia.id}</Td>
                 <Td>{dia.name}</Td>
-                <Td>{dia.price}</Td>
+                <Td>{dia.sum}</Td>
                 <Td>{dia.about}</Td>
-                <Td>{dia.table}</Td>
-                <Td>{dia.analise}</Td>
-                <Td>{dia.ready}</Td>
+                <Td>{new Date(dia.createdAt).toLocaleString()}</Td>
 
                 <Td>
                   <Flex gap={2}>
@@ -219,7 +218,7 @@ function Diagnostic() {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
-            {isEditing ? "Редактировать диагноз" : "Создать диагноз"}
+            {isEditing ? "Редактировать Диагностику" : "Создать Диагностику"}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
@@ -230,17 +229,27 @@ function Diagnostic() {
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                placeholder="Введите название диагноза"
+                placeholder="Введите название категории"
               />
             </FormControl>
             <FormControl mb={3}>
-              <FormLabel>Описание</FormLabel>
+              <FormLabel>Название анализа</FormLabel>
               <Input
-                value={formData.description}
+                value={formData.about}
                 onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
+                  setFormData({ ...formData, about: e.target.value })
                 }
-                placeholder="Введите описание"
+                placeholder="Введите название анализа"
+              />
+            </FormControl>
+            <FormControl mb={3}>
+              <FormLabel>Цена</FormLabel>
+              <Input
+                value={formData.sum}
+                onChange={(e) =>
+                  setFormData({ ...formData, sum: e.target.value })
+                }
+                placeholder="Введите цену"
               />
             </FormControl>
             <Button colorScheme="blue" mr={3} onClick={handleCreateOrUpdate}>
@@ -253,4 +262,4 @@ function Diagnostic() {
   );
 }
 
-export default Diagnostic;
+export default Lab;

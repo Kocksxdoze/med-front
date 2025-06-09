@@ -16,6 +16,8 @@ import {
 import { useRouter } from "next/navigation";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import fetcher from "../../utils/fetcher";
+import Cookies from "js-cookie";
+import jwt from "jsonwebtoken";
 
 function Header() {
   const [year, setYear] = useState("");
@@ -26,6 +28,10 @@ function Header() {
   const toast = useToast();
   const [remainingTime, setRemainingTime] = useState(3600);
   const [reports, setReports] = useState([]);
+
+  const token = Cookies.get("token");
+  const decoded = jwt.decode(token);
+  const role = decoded?.role;
 
   useEffect(() => {
     const updateTime = () => {
@@ -44,7 +50,7 @@ function Header() {
 
   useEffect(() => {
     const fetchReports = async () => {
-      const response = await fetch("http://192.168.1.13:4000/reports");
+      const response = await fetch("http://localhost:4000/reports");
       const data = await response.json();
       if (response.ok) {
         setReports(data);
@@ -55,7 +61,7 @@ function Header() {
 
   const clients = async () => {
     try {
-      const response = await fetch("http://192.168.1.13:4000/clients");
+      const response = await fetch("http://localhost:4000/clients");
       const data = await response.json();
       console.log(data);
 
@@ -108,6 +114,11 @@ function Header() {
   const logout = () => {
     localStorage.removeItem("logoutTimer");
     router.push("/auth");
+  };
+
+  // Check if user has access to a specific role
+  const hasAccess = (allowedRoles) => {
+    return allowedRoles.includes(role) || role === "admin";
   };
 
   return (
@@ -184,114 +195,8 @@ function Header() {
         </Box>
 
         <Box display={"flex"} alignItems={"center"} gap={"10px"} mt={5} px={5}>
-          <Button
-            bg={"#fff"}
-            color={"#000"}
-            border={"1px solid transparent"}
-            borderRadius={"8px"}
-            fontWeight={"600"}
-            _hover={{
-              color: "#fff",
-              background: "#0052b4",
-              border: "1px solid transparent",
-            }}
-            onClick={() => router.push("/")}
-          >
-            Главная
-          </Button>
-          <Button
-            bg={"#fff"}
-            color={"#000"}
-            border={"1px solid transparent"}
-            borderRadius={"8px"}
-            fontWeight={"600"}
-            _hover={{
-              color: "#fff",
-              background: "#0052b4",
-              border: "1px solid transparent",
-            }}
-            onClick={() => router.push("/register")}
-          >
-            Регистрация
-          </Button>
-          <Button
-            bg={"#fff"}
-            color={"#000"}
-            border={"1px solid transparent"}
-            borderRadius={"8px"}
-            fontWeight={"600"}
-            _hover={{
-              color: "#fff",
-              background: "#0052b4",
-              border: "1px solid transparent",
-            }}
-            onClick={() => router.push("/patients")}
-          >
-            Пациенты
-          </Button>
-          <Button
-            bg={"#fff"}
-            color={"#000"}
-            border={"1px solid transparent"}
-            borderRadius={"8px"}
-            fontWeight={"600"}
-            _hover={{
-              color: "#fff",
-              background: "#0052b4",
-              border: "1px solid transparent",
-            }}
-            onClick={() => router.push("/cashbox")}
-          >
-            Касса
-          </Button>
-          <Button
-            bg={"#fff"}
-            color={"#000"}
-            border={"1px solid transparent"}
-            borderRadius={"8px"}
-            fontWeight={"600"}
-            _hover={{
-              color: "#fff",
-              background: "#0052b4",
-              border: "1px solid transparent",
-            }}
-            onClick={() => router.push("/cabinet")}
-          >
-            Кабинет доктора
-          </Button>
-          <Button
-            bg={"#fff"}
-            color={"#000"}
-            border={"1px solid transparent"}
-            borderRadius={"8px"}
-            fontWeight={"600"}
-            _hover={{
-              color: "#fff",
-              background: "#0052b4",
-              border: "1px solid transparent",
-            }}
-            onClick={() => router.push("/diagnostic")}
-          >
-            Диагностика
-          </Button>
-          <Button
-            bg={"#fff"}
-            color={"#000"}
-            border={"1px solid transparent"}
-            borderRadius={"8px"}
-            fontWeight={"600"}
-            _hover={{
-              color: "#fff",
-              background: "#0052b4",
-              border: "1px solid transparent",
-            }}
-            onClick={() => router.push("/lab")}
-          >
-            Лаборатория
-          </Button>
-          <Menu>
-            <MenuButton
-              as={Button}
+          {hasAccess(["admin"]) && (
+            <Button
               bg={"#fff"}
               color={"#000"}
               border={"1px solid transparent"}
@@ -302,43 +207,14 @@ function Header() {
                 background: "#0052b4",
                 border: "1px solid transparent",
               }}
-              rightIcon={<ChevronDownIcon />}
+              onClick={() => router.push("/")}
             >
-              Настройки
-            </MenuButton>
-            <MenuList zIndex={"999"}>
-              <MenuItem onClick={() => router.push("/settings/doctors")}>
-                Доктора
-              </MenuItem>
-              <MenuItem onClick={() => router.push("/settings/category")}>
-                Категории
-              </MenuItem>
-              <MenuItem onClick={() => router.push("/settings/sub-category")}>
-                Под-категории
-              </MenuItem>
-              <MenuItem onClick={() => router.push("/settings/offers")}>
-                Услуги
-              </MenuItem>
-              <MenuItem onClick={() => router.push("/settings/reports")}>
-                Создать категорию отчетов
-              </MenuItem>
-              <MenuItem onClick={() => router.push("/settings/bases")}>
-                Филлиалы
-              </MenuItem>
-              <MenuItem onClick={() => router.push("/settings/app-offers")}>
-                Услуги встреч
-              </MenuItem>
-              <MenuItem onClick={() => router.push("/settings/types")}>
-                Типы встреч
-              </MenuItem>
-              <MenuItem onClick={() => router.push("/settings/benefits")}>
-                Категории льгот
-              </MenuItem>
-            </MenuList>
-          </Menu>
-          <Menu>
-            <MenuButton
-              as={Button}
+              Главная
+            </Button>
+          )}
+
+          {hasAccess(["registration", "admin"]) && (
+            <Button
               bg={"#fff"}
               color={"#000"}
               border={"1px solid transparent"}
@@ -349,36 +225,224 @@ function Header() {
                 background: "#0052b4",
                 border: "1px solid transparent",
               }}
-              rightIcon={<ChevronDownIcon />}
+              onClick={() => router.push("/register")}
             >
-              Отчеты
-            </MenuButton>
-            <MenuList zIndex={"999"}>
-              {reports.map((report, indx) => (
-                <MenuItem
-                  key={report.id}
-                  onClick={() => router.push(`/report/${report.id}`)}
-                >
-                  {report.name}
+              Регистрация
+            </Button>
+          )}
+
+          {hasAccess(["registration", "doctors", "laboratory", "admin"]) && (
+            <Button
+              bg={"#fff"}
+              color={"#000"}
+              border={"1px solid transparent"}
+              borderRadius={"8px"}
+              fontWeight={"600"}
+              _hover={{
+                color: "#fff",
+                background: "#0052b4",
+                border: "1px solid transparent",
+              }}
+              onClick={() => router.push("/patients")}
+            >
+              Пациенты
+            </Button>
+          )}
+
+          {hasAccess(["registration", "admin"]) && (
+            <Button
+              bg={"#fff"}
+              color={"#000"}
+              border={"1px solid transparent"}
+              borderRadius={"8px"}
+              fontWeight={"600"}
+              _hover={{
+                color: "#fff",
+                background: "#0052b4",
+                border: "1px solid transparent",
+              }}
+              onClick={() => router.push("/palates")}
+            >
+              Палаты
+            </Button>
+          )}
+
+          {hasAccess(["accountant", "admin"]) && (
+            <Button
+              bg={"#fff"}
+              color={"#000"}
+              border={"1px solid transparent"}
+              borderRadius={"8px"}
+              fontWeight={"600"}
+              _hover={{
+                color: "#fff",
+                background: "#0052b4",
+                border: "1px solid transparent",
+              }}
+              onClick={() => router.push("/cashbox")}
+            >
+              Касса
+            </Button>
+          )}
+
+          {hasAccess(["doctors", "admin"]) && (
+            <Button
+              bg={"#fff"}
+              color={"#000"}
+              border={"1px solid transparent"}
+              borderRadius={"8px"}
+              fontWeight={"600"}
+              _hover={{
+                color: "#fff",
+                background: "#0052b4",
+                border: "1px solid transparent",
+              }}
+              onClick={() => router.push("/cabinet")}
+            >
+              Кабинет доктора
+            </Button>
+          )}
+
+          {hasAccess(["laboratory", "admin"]) && (
+            <Button
+              bg={"#fff"}
+              color={"#000"}
+              border={"1px solid transparent"}
+              borderRadius={"8px"}
+              fontWeight={"600"}
+              _hover={{
+                color: "#fff",
+                background: "#0052b4",
+                border: "1px solid transparent",
+              }}
+              onClick={() => router.push("/diagnostic")}
+            >
+              Диагностика
+            </Button>
+          )}
+
+          {hasAccess(["laboratory", "admin"]) && (
+            <Button
+              bg={"#fff"}
+              color={"#000"}
+              border={"1px solid transparent"}
+              borderRadius={"8px"}
+              fontWeight={"600"}
+              _hover={{
+                color: "#fff",
+                background: "#0052b4",
+                border: "1px solid transparent",
+              }}
+              onClick={() => router.push("/lab")}
+            >
+              Лаборатория
+            </Button>
+          )}
+
+          {hasAccess(["admin"]) && (
+            <Menu>
+              <MenuButton
+                as={Button}
+                bg={"#fff"}
+                color={"#000"}
+                border={"1px solid transparent"}
+                borderRadius={"8px"}
+                fontWeight={"600"}
+                _hover={{
+                  color: "#fff",
+                  background: "#0052b4",
+                  border: "1px solid transparent",
+                }}
+                rightIcon={<ChevronDownIcon />}
+              >
+                Настройки
+              </MenuButton>
+              <MenuList zIndex={"999"}>
+                <MenuItem onClick={() => router.push("/settings/doctors")}>
+                  Доктора
                 </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
-          <Button
-            bg={"#fff"}
-            color={"#000"}
-            border={"1px solid transparent"}
-            borderRadius={"8px"}
-            fontWeight={"600"}
-            _hover={{
-              color: "#fff",
-              background: "#0052b4",
-              border: "1px solid transparent",
-            }}
-            onClick={() => router.push("/appointment")}
-          >
-            Запись на прием
-          </Button>
+                <MenuItem onClick={() => router.push("/settings/category")}>
+                  Категории
+                </MenuItem>
+                <MenuItem onClick={() => router.push("/settings/sub-category")}>
+                  Под-категории
+                </MenuItem>
+                <MenuItem onClick={() => router.push("/settings/offers")}>
+                  Услуги
+                </MenuItem>
+                <MenuItem onClick={() => router.push("/settings/reports")}>
+                  Создать категорию отчетов
+                </MenuItem>
+                <MenuItem onClick={() => router.push("/settings/bases")}>
+                  Филлиалы
+                </MenuItem>
+                <MenuItem onClick={() => router.push("/settings/app-offers")}>
+                  Услуги встреч
+                </MenuItem>
+                <MenuItem onClick={() => router.push("/settings/types")}>
+                  Типы встреч
+                </MenuItem>
+                <MenuItem onClick={() => router.push("/settings/benefits")}>
+                  Категории льгот
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          )}
+
+          {hasAccess([
+            "registration",
+            "accountant",
+            "doctors",
+            "laboratory",
+            "admin",
+          ]) && (
+            <Menu>
+              <MenuButton
+                as={Button}
+                bg={"#fff"}
+                color={"#000"}
+                border={"1px solid transparent"}
+                borderRadius={"8px"}
+                fontWeight={"600"}
+                _hover={{
+                  color: "#fff",
+                  background: "#0052b4",
+                  border: "1px solid transparent",
+                }}
+                rightIcon={<ChevronDownIcon />}
+              >
+                Отчеты
+              </MenuButton>
+              <MenuList zIndex={"999"}>
+                {reports.map((report, indx) => (
+                  <MenuItem
+                    key={report.id}
+                    onClick={() => router.push(`/report/${report.id}`)}
+                  >
+                    {report.name}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Menu>
+          )}
+
+          {hasAccess(["registration", "doctors", "admin"]) && (
+            <Button
+              bg={"#fff"}
+              color={"#000"}
+              border={"1px solid transparent"}
+              borderRadius={"8px"}
+              fontWeight={"600"}
+              _hover={{
+                color: "#fff",
+                background: "#0052b4",
+                border: "1px solid transparent",
+              }}
+              onClick={() => router.push("/appointment")}
+            >
+              Запись на прием
+            </Button>
+          )}
         </Box>
       </Flex>
     </>
