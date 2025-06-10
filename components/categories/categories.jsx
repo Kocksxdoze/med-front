@@ -28,6 +28,7 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
+import { getApiBaseUrl } from "../../utils/api";
 
 function Categories() {
   const [categories, setCategories] = useState([]);
@@ -39,6 +40,7 @@ function Categories() {
   const [formData, setFormData] = useState({
     categoryName: "",
   });
+  const api = getApiBaseUrl();
 
   async function loadcategories() {
     const data = await fetcher("categories");
@@ -58,10 +60,7 @@ function Categories() {
   const handleCreatecategory = async () => {
     try {
       if (isEditing) {
-        await axios.put(
-          `http://192.168.1.11:4000/category/edit/${editingId}`,
-          formData
-        );
+        await axios.put(`${api}/category/edit/${editingId}`, formData);
         toast({
           title: "Филиал обновлён.",
           status: "success",
@@ -70,7 +69,7 @@ function Categories() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://192.168.1.11:4000/category/new", formData);
+        await axios.post(`${api}/category/new`, formData);
         toast({
           title: "Филиал создан.",
           status: "success",
@@ -99,7 +98,7 @@ function Categories() {
 
   const handleDeletecategory = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.11:4000/category/delete/${id}`);
+      await axios.delete(`${api}/category/delete/${id}`);
       toast({
         title: "Филиал удалён.",
         status: "success",

@@ -27,6 +27,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import { getApiBaseUrl } from "../../utils/api";
 
 // Функция для перевода названий колонок на русский
 const translateColumn = (columnName) => {
@@ -57,7 +58,6 @@ function DataTable({ title, data }) {
       offers: "Услуги",
       diagnostics: "Диагностика",
     }[title] || "Данные";
-
   return (
     <Box mb={6}>
       <Text fontWeight="bold" fontSize="lg" mb={2}>
@@ -117,6 +117,8 @@ export default function PatientPage() {
     diagnostics: [],
     offers: [],
   });
+  const api = getApiBaseUrl();
+
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const componentRef = useRef();
 
@@ -127,7 +129,7 @@ export default function PatientPage() {
   } = useDisclosure();
 
   const fetchPatientData = async () => {
-    const res = await fetch(`http://192.168.1.11:4000/client/${id}`);
+    const res = await fetch(`${api}/client/${id}`);
     const data = await res.json();
     setPatientData(data);
 
@@ -168,7 +170,12 @@ export default function PatientPage() {
         surname: patientData?.surname || "",
         patronymic: patientData?.lastName || "",
         phoneNumber: patientData?.phoneNumber || "",
-        age: patientData?.age || "",
+        age: patientData?.dateBirth || "",
+        republic: patientData?.republic || "",
+        region: patientData?.region || "",
+        street: patientData?.street || "",
+        addres: patientData?.addres || "",
+        registrator: patientData?.registrator || "",
       });
     } else {
       setFormState({ paymentAmount: "" });
@@ -215,7 +222,7 @@ export default function PatientPage() {
       };
     }
 
-    await fetch(`http://192.168.1.11:4000/client/edit/${id}`, {
+    await fetch(`${api}/client/edit/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatePayload),
@@ -244,58 +251,58 @@ export default function PatientPage() {
     const newWindow = window.open("", "_blank");
 
     newWindow.document.write(`
-      <html>
-        <head>
-          <title>ROSHIDON medical center</title>
-          <style>
-            body {
-              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-              margin: 20px;
-              background: #fff;
-              color: #000;
-            }
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-bottom: 1.5rem;
-            }
-            th, td {
-              border: 1px solid #000;
-              padding: 8px;
-              text-align: left;
-            }
-            th {
-              background-color: #eee;
-            }
-            .header {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-            }
-            .header-title {
-              font-size: 24px;
-              font-weight: bold;
-            }
-            #logo {
-              width: 150px;
-              height: 120px;
-            }
-            .info-section {
-              margin-bottom: 20px;
-            }
-            .print-section {
-              margin-bottom: 30px;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <img id="logo" src="/roshidonbg.png" alt="ROSHIDON Logo" />
-          </div>
-          ${printContents}
-        </body>
-      </html>
-    `);
+        <html>
+          <head>
+            <title>ROSHIDON medical center</title>
+            <style>
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                margin: 20px;
+                background: #fff;
+                color: #000;
+              }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 1.5rem;
+              }
+              th, td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: left;
+              }
+              th {
+                background-color: #eee;
+              }
+              .header {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+              .header-title {
+                font-size: 24px;
+                font-weight: bold;
+              }
+              #logo {
+                width: 150px;
+                height: 120px;
+              }
+              .info-section {
+                margin-bottom: 20px;
+              }
+              .print-section {
+                margin-bottom: 30px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <img id="logo" src="/roshidonbg.png" alt="ROSHIDON Logo" />
+            </div>
+            ${printContents}
+          </body>
+        </html>
+      `);
 
     newWindow.document.close();
     setTimeout(() => {
@@ -311,20 +318,20 @@ export default function PatientPage() {
 
     if (selectedItems.info) {
       content.push(`
-        <div class="info-section">
-          <h1 style="text-align:center;">ROSHIDON <br/><span style="font-size: 0.75em;">medical center</span></h1>
-          <p>Ф.И.О: ${patientData.surname || ""} ${patientData.name || ""} ${
+          <div class="info-section">
+            <h1 style="text-align:center;">ROSHIDON <br/><span style="font-size: 0.75em;">medical center</span></h1>
+            <p>Ф.И.О: ${patientData.surname || ""} ${patientData.name || ""} ${
         patientData.lastName || ""
       }</p>
-          <p>Дата: ${new Date().toLocaleString("ru-RU")}</p>
-          <p>Возраст: ${calculateAge(patientData.dateBirth) || ""}</p>
-          <p>Телефон: ${patientData.phoneNumber || ""}</p>
-          <p>Баланс: ${patientData.balance || 0} UZS</p>
-          <p>Долг: ${patientData.debt || 0} UZS</p>
-          <p>Регистратор: ${patientData.registrator || 0}</p>
-          <hr/>
-        </div>
-      `);
+            <p>Дата: ${new Date().toLocaleString("ru-RU")}</p>
+            <p>Возраст: ${calculateAge(patientData.dateBirth) || ""}</p>
+            <p>Телефон: ${patientData.phoneNumber || ""}</p>
+            <p>Баланс: ${patientData.balance || 0} UZS</p>
+            <p>Долг: ${patientData.debt || 0} UZS</p>
+            <p>Регистратор: ${patientData.registrator || 0}</p>
+            <hr/>
+          </div>
+        `);
     }
 
     if (
@@ -350,11 +357,11 @@ export default function PatientPage() {
             .join("");
 
           content.push(`
-            <table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
-              <thead><tr>${header}</tr></thead>
-              <tbody><tr>${cells}</tr></tbody>
-            </table>
-          `);
+              <table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
+                <thead><tr>${header}</tr></thead>
+                <tbody><tr>${cells}</tr></tbody>
+              </table>
+            `);
         }
       });
 
@@ -386,11 +393,11 @@ export default function PatientPage() {
             .join("");
 
           content.push(`
-            <table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
-              <thead><tr>${header}</tr></thead>
-              <tbody><tr>${cells}</tr></tbody>
-            </table>
-          `);
+              <table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
+                <thead><tr>${header}</tr></thead>
+                <tbody><tr>${cells}</tr></tbody>
+              </table>
+            `);
         }
       });
 
@@ -414,11 +421,11 @@ export default function PatientPage() {
           const cells = keys.map((k) => `<td>${offer[k] ?? ""}</td>`).join("");
 
           content.push(`
-            <table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
-              <thead><tr>${header}</tr></thead>
-              <tbody><tr>${cells}</tr></tbody>
-            </table>
-          `);
+              <table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
+                <thead><tr>${header}</tr></thead>
+                <tbody><tr>${cells}</tr></tbody>
+              </table>
+            `);
         }
       });
 
@@ -604,6 +611,9 @@ export default function PatientPage() {
             </Button>
             <Button colorScheme="green" onClick={handlePrintModalOpen}>
               Распечатать документ
+            </Button>
+            <Button colorScheme="green" onClick={() => openEdit("offers")}>
+              Добавить услугу
             </Button>
           </Box>
         </Box>

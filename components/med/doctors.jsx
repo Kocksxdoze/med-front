@@ -25,9 +25,11 @@ import {
   FormControl,
   FormLabel,
   useToast,
+  Select,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
+import { getApiBaseUrl } from "../../utils/api";
 
 function Doctors() {
   const [doctors, setDoctors] = useState([]);
@@ -49,7 +51,7 @@ function Doctors() {
     baseId: "",
     role: "",
   });
-
+  const api = getApiBaseUrl();
   async function loaddoctors() {
     const data = await fetcher("doctors");
     setDoctors(Array.isArray(data) ? data : []);
@@ -78,10 +80,7 @@ function Doctors() {
   const handleSaveDoctor = async () => {
     try {
       if (formData.id) {
-        await axios.put(
-          `http://192.168.1.11:4000/doctor/edit/${formData.id}`,
-          formData
-        );
+        await axios.put(`${api}/doctor/edit/${formData.id}`, formData);
         toast({
           title: "Данные врача обновлены.",
           status: "success",
@@ -90,7 +89,7 @@ function Doctors() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://192.168.1.11:4000/register", formData);
+        await axios.post(`${api}/register`, formData);
         toast({
           title: "Врач успешно создан.",
           status: "success",
@@ -130,7 +129,7 @@ function Doctors() {
 
   const handleDeleteDoctor = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.11:4000/doctor/delete/${id}`);
+      await axios.delete(`${api}/doctor/delete/${id}`);
       toast({
         title: "Врач удалён.",
         status: "success",
@@ -152,7 +151,7 @@ function Doctors() {
   };
 
   const handleEditDoctor = (doctor) => {
-    setFormData(doctor);
+    setFormData({ ...doctor, password: "" });
     onOpen();
   };
 
@@ -202,7 +201,7 @@ function Doctors() {
                 <Td>{`${doctor.surname} ${doctor.name}`}</Td>
                 <Td>{doctor.phoneNumber}</Td>
                 <Td>{doctor.email}</Td>
-                <Td>{new Date(doctor.dateBirth).toLocaleDateString()}</Td>
+                <Td>{doctor.dateBirth}</Td>
                 <Td>{doctor.job}</Td>
                 <Td>{doctor.profession}</Td>
                 <Td>{doctor.street}</Td>
@@ -250,8 +249,6 @@ function Doctors() {
               { name: "job", label: "Место работы" },
               { name: "profession", label: "Профессия" },
               { name: "street", label: "Адрес проживания" },
-              { name: "baseId", label: "Филлиал" },
-              { name: "role", label: "Роль" },
             ].map(({ name, label }) => (
               <FormControl key={name} mb={3}>
                 <FormLabel>{label}</FormLabel>
@@ -264,6 +261,46 @@ function Doctors() {
                 />
               </FormControl>
             ))}
+            <FormControl mb={3}>
+              <FormLabel>Роль</FormLabel>
+              <Select
+                placeholder="Выберите роль"
+                value={formData.role}
+                onChange={(e) =>
+                  setFormData({ ...formData, role: e.target.value })
+                }
+              >
+                {[
+                  "nurse",
+                  "doctors",
+                  "laboratory",
+                  "accountant",
+                  "registration",
+                  "admin",
+                ].map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl mb={3}>
+              <FormLabel>Филиал</FormLabel>
+              <Select
+                placeholder="Выберите филиал"
+                value={formData.baseId}
+                onChange={(e) =>
+                  setFormData({ ...formData, baseId: e.target.value })
+                }
+              >
+                {bases.map((base) => (
+                  <option key={base.id} value={base.id}>
+                    {base.name || base.address || `Филиал ${base.id}`}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
 
             <Button colorScheme="blue" mr={3} onClick={handleSaveDoctor}>
               {formData.id ? "Сохранить" : "Создать"}

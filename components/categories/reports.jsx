@@ -29,7 +29,7 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
-
+import { getApiBaseUrl } from "../../utils/api";
 function Reports() {
   const [reports, setReports] = useState([]);
   const [categories, setCategories] = useState([]); // Состояние для категорий
@@ -41,6 +41,7 @@ function Reports() {
   const [formData, setFormData] = useState({
     name: "",
   });
+  const api = getApiBaseUrl();
 
   // Загрузка подкатегорий
   async function loadreports() {
@@ -78,10 +79,7 @@ function Reports() {
     try {
       if (isEditing) {
         //
-        await axios.put(
-          `http://192.168.1.11:4000/report/edit/${editingId}`,
-          formData
-        );
+        await axios.put(`${api}/report/edit/${editingId}`, formData);
         toast({
           title: "Отчет обновлен.",
           status: "success",
@@ -91,7 +89,7 @@ function Reports() {
         });
       } else {
         // Создание
-        await axios.post("http://192.168.1.11:4000/report/create", formData);
+        await axios.post(`${api}/report/create`, formData);
         toast({
           title: "Отчет создан.",
           status: "success",
@@ -123,7 +121,7 @@ function Reports() {
 
   const handleDeletereport = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.11:4000/report/delete/${id}`);
+      await axios.delete(`${api}/report/delete/${id}`);
       toast({
         title: "Подкатегория удалена.",
         status: "success",

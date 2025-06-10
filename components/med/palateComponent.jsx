@@ -28,6 +28,7 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
+import { getApiBaseUrl } from "../../utils/api";
 
 function Palate() {
   const [bases, setBases] = useState([]);
@@ -43,6 +44,7 @@ function Palate() {
     clientId: "",
     palateType: "",
   });
+  const api = getApiBaseUrl();
 
   async function loadbases() {
     const data = await fetcher("palates");
@@ -67,10 +69,7 @@ function Palate() {
   const handleCreatebase = async () => {
     try {
       if (isEditing) {
-        await axios.put(
-          `http://192.168.1.11:4000/palate/edit/${editingId}`,
-          formData
-        );
+        await axios.put(`${api}/palate/edit/${editingId}`, formData);
         toast({
           title: "Филиал обновлён.",
           status: "success",
@@ -79,7 +78,7 @@ function Palate() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://192.168.1.11:4000/palate/new", formData);
+        await axios.post(`${api}/palate/new`, formData);
         toast({
           title: "Филиал создан.",
           status: "success",
@@ -112,7 +111,7 @@ function Palate() {
 
   const handleDeleteBase = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.11:4000/palate/delete/${id}`);
+      await axios.delete(`${api}/palate/delete/${id}`);
       toast({
         title: "Филиал удалён.",
         status: "success",

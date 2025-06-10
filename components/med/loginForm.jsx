@@ -13,12 +13,14 @@ import {
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import jwt from "jsonwebtoken";
+import { getApiBaseUrl } from "../../utils/api";
 
 function LoginForm() {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const toast = useToast();
+  const api = getApiBaseUrl();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,7 +30,7 @@ function LoginForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch("http://192.168.1.11:4000/login", {
+      const response = await fetch(`${api}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

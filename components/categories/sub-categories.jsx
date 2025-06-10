@@ -29,6 +29,7 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
+import { getApiBaseUrl } from "../../utils/api";
 
 function SubCategories() {
   const [subCategories, setSubCategories] = useState([]);
@@ -42,7 +43,7 @@ function SubCategories() {
     name: "",
     categoryId: "", // categoryId будет хранить выбранную категорию
   });
-
+  const api = getApiBaseUrl();
   // Загрузка подкатегорий
   async function loadSubCategories() {
     const data = await fetcher("sub");
@@ -69,10 +70,7 @@ function SubCategories() {
   const handleCreateSubCategory = async () => {
     try {
       if (isEditing) {
-        await axios.put(
-          `http://192.168.1.11:4000/sub/edit/${editingId}`,
-          formData
-        );
+        await axios.put(`${api}/sub/edit/${editingId}`, formData);
         toast({
           title: "Подкатегория обновлена.",
           status: "success",
@@ -81,7 +79,7 @@ function SubCategories() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://192.168.1.11:4000/sub/new", formData);
+        await axios.post(`${api}/sub/new`, formData);
         toast({
           title: "Подкатегория создана.",
           status: "success",

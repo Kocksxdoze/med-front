@@ -28,6 +28,7 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
+import { getApiBaseUrl } from "../../utils/api";
 
 function AppTypes() {
   const [bases, setBases] = useState([]);
@@ -40,6 +41,7 @@ function AppTypes() {
     name: "",
     desc: "",
   });
+  const api = getApiBaseUrl();
 
   async function loadbases() {
     const data = await fetcher("types");
@@ -59,10 +61,7 @@ function AppTypes() {
   const handleCreatebase = async () => {
     try {
       if (isEditing) {
-        await axios.put(
-          `http://192.168.1.11:4000/type/update/${editingId}`,
-          formData
-        );
+        await axios.put(`${api}/type/update/${editingId}`, formData);
         toast({
           title: "Тип обновлён.",
           status: "success",
@@ -71,7 +70,7 @@ function AppTypes() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://192.168.1.11:4000/type/new", formData);
+        await axios.post(`${api}/type/new`, formData);
         toast({
           title: "Тип создан.",
           status: "success",
@@ -101,7 +100,7 @@ function AppTypes() {
 
   const handleDeleteBase = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.11:4000/type/delete/${id}`);
+      await axios.delete(`${api}/type/delete/${id}`);
       toast({
         title: "Тип удалён.",
         status: "success",

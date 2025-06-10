@@ -37,6 +37,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format, startOfDay, parseISO } from "date-fns";
 
+import { getApiBaseUrl } from "../../utils/api";
+
 function Cabinet() {
   const [doctor, setDoctor] = useState(null);
   const [clients, setClients] = useState([]);
@@ -47,7 +49,7 @@ function Cabinet() {
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
   const [userRole, setUserRole] = useState(null);
   const toast = useToast();
-
+  const api = getApiBaseUrl();
   const [selectedClient, setSelectedClient] = useState(null);
   const {
     isOpen: isModalOpen,
@@ -84,7 +86,7 @@ function Cabinet() {
 
     // Уже есть загрузка клиентов...
     setLoadingClients(true);
-    fetch("http://192.168.1.11:4000/clients")
+    fetch(`${api}/clients`)
       .then((res) => res.json())
       .then((data) => {
         const filteredClients = data.filter(
@@ -99,7 +101,7 @@ function Cabinet() {
 
     // Загрузка встреч
     setLoadingApps(true);
-    fetch("http://192.168.1.11:4000/apps")
+    fetch(`${api}/apps`)
       .then((res) => res.json())
       .then((data) => {
         const filteredApps = data.filter((app) => app.doctor === doctor.id);
@@ -190,7 +192,7 @@ function Cabinet() {
         return;
       }
 
-      endpoint = `http://192.168.1.11:4000/lab/update/${selectedLabId}`;
+      endpoint = `${api}/lab/update/${selectedLabId}`;
       payload = { analise: labAnalysis, ready: isReady };
     } else {
       if (!saveTarget) {
@@ -216,7 +218,7 @@ function Cabinet() {
           return;
         }
 
-        endpoint = `http://192.168.1.11:4000/dia/update/${selectedDiagnosisId}`;
+        endpoint = `${api}/dia/update/${selectedDiagnosisId}`;
         payload = { about: diagnosisText };
       } else if (saveTarget === "offer") {
         if (!selectedOfferId) {
@@ -230,7 +232,7 @@ function Cabinet() {
           return;
         }
 
-        endpoint = `http://192.168.1.11:4000/offer/update/${selectedOfferId}`;
+        endpoint = `${api}/offer/update/${selectedOfferId}`;
         payload = { about: offersText };
       }
     }
@@ -259,7 +261,7 @@ function Cabinet() {
           isClosable: true,
         });
         closeModal();
-        return fetch("http://192.168.1.11:4000/clients")
+        return fetch(`${api}/clients`)
           .then((res) => res.json())
           .then((data) => {
             const filteredClients = data.filter(

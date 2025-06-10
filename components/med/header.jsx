@@ -18,6 +18,7 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 import fetcher from "../../utils/fetcher";
 import Cookies from "js-cookie";
 import jwt from "jsonwebtoken";
+import { getApiBaseUrl } from "../../utils/api";
 
 function Header() {
   const [year, setYear] = useState("");
@@ -28,7 +29,7 @@ function Header() {
   const toast = useToast();
   const [remainingTime, setRemainingTime] = useState(3600);
   const [reports, setReports] = useState([]);
-
+  const api = getApiBaseUrl();
   const token = Cookies.get("token");
   const decoded = jwt.decode(token);
   const role = decoded?.role;
@@ -50,7 +51,7 @@ function Header() {
 
   useEffect(() => {
     const fetchReports = async () => {
-      const response = await fetch("http://192.168.1.11:4000/reports");
+      const response = await fetch(`${api}/reports`);
       const data = await response.json();
       if (response.ok) {
         setReports(data);
@@ -61,7 +62,7 @@ function Header() {
 
   const clients = async () => {
     try {
-      const response = await fetch("http://192.168.1.11:4000/clients");
+      const response = await fetch(`${api}/clients`);
       const data = await response.json();
       console.log(data);
 
@@ -118,7 +119,7 @@ function Header() {
 
   // Check if user has access to a specific role
   const hasAccess = (allowedRoles) => {
-    return allowedRoles.includes(role) || role === "admin";
+    return allowedRoles.includes(role);
   };
 
   return (
@@ -194,7 +195,13 @@ function Header() {
           </Button>
         </Box>
 
-        <Box display={"flex"} alignItems={"center"} gap={"10px"} mt={5} px={5}>
+        <Box
+          display={"flex"}
+          alignItems={"flex-start"}
+          justifyContent={"flex-start"}
+          gap={"10px"}
+          mt={5}
+        >
           {hasAccess(["admin"]) && (
             <Button
               bg={"#fff"}
@@ -231,7 +238,7 @@ function Header() {
             </Button>
           )}
 
-          {hasAccess(["registration", "doctors", "laboratory", "admin"]) && (
+          {hasAccess(["registration", "admin"]) && (
             <Button
               bg={"#fff"}
               color={"#000"}
@@ -249,7 +256,7 @@ function Header() {
             </Button>
           )}
 
-          {hasAccess(["registration", "admin"]) && (
+          {hasAccess("registration") && (
             <Button
               bg={"#fff"}
               color={"#000"}
@@ -441,6 +448,23 @@ function Header() {
               onClick={() => router.push("/appointment")}
             >
               Запись на прием
+            </Button>
+          )}
+          {hasAccess(["nurse", "admin"]) && (
+            <Button
+              bg={"#fff"}
+              color={"#000"}
+              border={"1px solid transparent"}
+              borderRadius={"8px"}
+              fontWeight={"600"}
+              _hover={{
+                color: "#fff",
+                background: "#0052b4",
+                border: "1px solid transparent",
+              }}
+              onClick={() => router.push("/pharmacy")}
+            >
+              Аптека
             </Button>
           )}
         </Box>

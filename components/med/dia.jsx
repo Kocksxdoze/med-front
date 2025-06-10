@@ -27,6 +27,7 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
+import { getApiBaseUrl } from "../../utils/api";
 
 function Lab() {
   const [dias, setDias] = useState([]);
@@ -43,10 +44,10 @@ function Lab() {
     analise: "",
     ready: "",
   });
-
+  const api = getApiBaseUrl();
   const loadDias = async () => {
     try {
-      const res = await axios.get("http://192.168.1.11:4000/dia-categories");
+      const res = await axios.get(`${api}/dia-categories`);
       setDias(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error("Ошибка при загрузке Диагностики:", error);
@@ -74,10 +75,7 @@ function Lab() {
   const handleCreateOrUpdate = async () => {
     try {
       if (isEditing) {
-        await axios.put(
-          `http://192.168.1.11:4000/dia-category/update/${editingId}`,
-          formData
-        );
+        await axios.put(`${api}/dia-category/update/${editingId}`, formData);
         toast({
           title: "Диагностика обновлёна.",
           status: "success",
@@ -85,7 +83,7 @@ function Lab() {
           isClosable: true,
         });
       } else {
-        await axios.post("http://192.168.1.11:4000/dia-category/new", formData);
+        await axios.post(`${api}/dia-category/new`, formData);
         toast({
           title: "Диагностика создана.",
           status: "success",
@@ -108,7 +106,7 @@ function Lab() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.11:4000/dia-category/delete/${id}`);
+      await axios.delete(`${api}/dia-category/delete/${id}`);
       toast({
         title: "Диагностика удалёна.",
         status: "success",

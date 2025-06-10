@@ -31,6 +31,7 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
+import { getApiBaseUrl } from "../../utils/api";
 
 function OffersReports() {
   const [labCategory, setLabCategory] = useState(null);
@@ -41,14 +42,13 @@ function OffersReports() {
   const [selectedReport, setSelectedReport] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const toast = useToast();
+  const api = getApiBaseUrl();
 
   const fetchLabReports = async () => {
     try {
       setLoading(true);
 
-      const categoriesResponse = await axios.get(
-        "http://192.168.1.11:4000/reports"
-      );
+      const categoriesResponse = await axios.get(`${api}/reports`);
       const allCategories = categoriesResponse.data;
 
       const labCategory = allCategories.find((cat) =>
@@ -68,7 +68,7 @@ function OffersReports() {
       setLabCategory(labCategory);
 
       const reportsResponse = await axios.get(
-        `http://192.168.1.11:4000/report/${labCategory.id}`
+        `${api}/report/${labCategory.id}`
       );
       const labReports = reportsResponse.data?.reportsTo || [];
 

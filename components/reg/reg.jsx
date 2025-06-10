@@ -1,6 +1,6 @@
 import { Box, useToast } from "@chakra-ui/react";
 import React, { useEffect, useRef } from "react";
-
+import { getApiBaseUrl } from "../../utils/api";
 function Reg({
   name,
   price,
@@ -13,7 +13,7 @@ function Reg({
 }) {
   const toast = useToast();
   const hasCreated = useRef(false); // флаг
-
+  const api = getApiBaseUrl();
   useEffect(() => {
     const createRecord = async () => {
       try {
@@ -21,15 +21,15 @@ function Reg({
         let body = { name, clientId, price };
 
         if (labId) {
-          endpoint = "http://192.168.1.11:4000/lab/new";
+          endpoint = `${api}/lab/new`;
           body.labId = labId;
           body.analise = analise;
         } else if (diaId) {
-          endpoint = "http://192.168.1.11:4000/dia/new";
+          endpoint = `${api}/dia/new`;
           body.diaId = diaId;
           body.analise = analise;
         } else if (offerId) {
-          endpoint = "http://192.168.1.11:4000/offer/new";
+          endpoint = `${api}/offer/new`;
           body = { clientId, offerId, price, name };
         } else {
           return;

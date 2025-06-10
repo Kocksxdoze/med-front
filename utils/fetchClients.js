@@ -1,5 +1,7 @@
+import { getApiBaseUrl } from "./api";
+const api = getApiBaseUrl();
 const fetchClients = async () => {
-  const response = await fetch("http://192.168.1.11:4000/clients");
+  const response = await fetch(`${api}/clients`);
   const data = await response.json();
   return data;
 };

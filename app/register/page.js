@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import fetcher from "../../utils/fetcher";
 import Cookies from "js-cookie";
 import Reg from "../../components/reg/reg";
+import { getApiBaseUrl } from "../../utils/api";
 
 function Register() {
   const formRef = useRef({});
@@ -46,6 +47,7 @@ function Register() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const toast = useToast();
+  const api = getApiBaseUrl();
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -156,7 +158,7 @@ function Register() {
 
     try {
       setLoading(true);
-      const response = await fetch("http://192.168.1.11:4000/client/create", {
+      const response = await fetch(`${api}/client/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -480,7 +482,6 @@ function Register() {
                   onChange={change}
                   placeholder="ФИО врача или номер"
                   value={formRef.current.doctor || ""}
-                  readOnly
                 />
                 <Input
                   _hover={{ border: "1px solid #0052b4" }}
@@ -490,7 +491,6 @@ function Register() {
                   onChange={change}
                   placeholder="ID Врача"
                   value={formRef.current.doctorId || ""}
-                  readOnly
                 />
               </chakra.span>
 

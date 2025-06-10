@@ -28,6 +28,7 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
+import { getApiBaseUrl } from "../../utils/api";
 
 function Promo() {
   const [bases, setBases] = useState([]);
@@ -40,6 +41,7 @@ function Promo() {
     name: "",
     presentage: "",
   });
+  const api = getApiBaseUrl();
 
   async function loadbases() {
     const data = await fetcher("promocodes");
@@ -59,10 +61,7 @@ function Promo() {
   const handleCreatebase = async () => {
     try {
       if (isEditing) {
-        await axios.put(
-          `http://192.168.1.11:4000/promo/edit/${editingId}`,
-          formData
-        );
+        await axios.put(`${api}/promo/edit/${editingId}`, formData);
         toast({
           title: "Филиал обновлён.",
           status: "success",
@@ -71,7 +70,7 @@ function Promo() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://192.168.1.11:4000/promo/create", formData);
+        await axios.post(`${api}/promo/create`, formData);
         toast({
           title: "Промокод создан.",
           status: "success",
@@ -101,7 +100,7 @@ function Promo() {
 
   const handleDeleteBase = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.11:4000/promo/delete/${id}`);
+      await axios.delete(`${api}/promo/delete/${id}`);
       toast({
         title: "Филиал удалён.",
         status: "success",

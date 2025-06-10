@@ -28,6 +28,7 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
+import { getApiBaseUrl } from "../../utils/api";
 
 function Bases() {
   const [bases, setBases] = useState([]);
@@ -39,6 +40,7 @@ function Bases() {
   const [formData, setFormData] = useState({
     name: "",
   });
+  const api = getApiBaseUrl();
 
   async function loadbases() {
     const data = await fetcher("bases");
@@ -58,10 +60,7 @@ function Bases() {
   const handleCreatebase = async () => {
     try {
       if (isEditing) {
-        await axios.put(
-          `http://192.168.1.11:4000/base/edit/${editingId}`,
-          formData
-        );
+        await axios.put(`${api}/base/edit/${editingId}`, formData);
         toast({
           title: "Филиал обновлён.",
           status: "success",
@@ -70,7 +69,7 @@ function Bases() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://192.168.1.11:4000/base/new", formData);
+        await axios.post(`${api}/base/new`, formData);
         toast({
           title: "Филиал создан.",
           status: "success",
@@ -99,7 +98,7 @@ function Bases() {
 
   const handleDeleteBase = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.11:4000/base/delete/${id}`);
+      await axios.delete(`${api}/base/delete/${id}`);
       toast({
         title: "Филиал удалён.",
         status: "success",

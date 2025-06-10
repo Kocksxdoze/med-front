@@ -27,6 +27,7 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
+import { getApiBaseUrl } from "../../utils/api";
 
 function Lab() {
   const [dias, setDias] = useState([]);
@@ -43,10 +44,11 @@ function Lab() {
     analise: "",
     ready: "",
   });
+  const api = getApiBaseUrl();
 
   const loadDias = async () => {
     try {
-      const res = await axios.get("http://192.168.1.11:4000/lab-categories");
+      const res = await axios.get(`${api}/lab-categories`);
       setDias(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error("Ошибка при загрузке Лаборатории:", error);
@@ -74,10 +76,7 @@ function Lab() {
   const handleCreateOrUpdate = async () => {
     try {
       if (isEditing) {
-        await axios.put(
-          `http://192.168.1.11:4000/lab-category/update/${editingId}`,
-          formData
-        );
+        await axios.put(`${api}/lab-category/update/${editingId}`, formData);
         toast({
           title: "Лаборатория обновлён.",
           status: "success",
@@ -85,7 +84,7 @@ function Lab() {
           isClosable: true,
         });
       } else {
-        await axios.post("http://192.168.1.11:4000/lab-category/new", formData);
+        await axios.post(`${api}/lab-category/new`, formData);
         toast({
           title: "Лаборатория создан.",
           status: "success",
@@ -108,7 +107,7 @@ function Lab() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.11:4000/lab-category/delete/${id}`);
+      await axios.delete(`${api}/lab-category/delete/${id}`);
       toast({
         title: "Лаборатория удалён.",
         status: "success",

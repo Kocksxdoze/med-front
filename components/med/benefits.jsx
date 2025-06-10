@@ -28,6 +28,7 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
+import { getApiBaseUrl } from "../../utils/api";
 
 function Benefit() {
   const [bases, setBases] = useState([]);
@@ -40,7 +41,7 @@ function Benefit() {
     name: "",
     desc: "",
   });
-
+  const api = getApiBaseUrl();
   async function loadbases() {
     const data = await fetcher("benefits");
     setBases(Array.isArray(data) ? data : []);
@@ -59,10 +60,7 @@ function Benefit() {
   const handleCreatebase = async () => {
     try {
       if (isEditing) {
-        await axios.put(
-          `http://192.168.1.11:4000/benefit/update/${editingId}`,
-          formData
-        );
+        await axios.put(`${api}/benefit/update/${editingId}`, formData);
         toast({
           title: "Льгота обновлён.",
           status: "success",
@@ -71,7 +69,7 @@ function Benefit() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://192.168.1.11:4000/benefit/new", formData);
+        await axios.post(`${api}/benefit/new`, formData);
         toast({
           title: "Льгота создан.",
           status: "success",
@@ -101,7 +99,7 @@ function Benefit() {
 
   const handleDeleteBase = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.11:4000/benefit/delete/${id}`);
+      await axios.delete(`${api}/benefit/delete/${id}`);
       toast({
         title: "Льгота удалён.",
         status: "success",

@@ -34,13 +34,14 @@ ChartJS.register(
   Legend,
   Filler
 );
+import { getApiBaseUrl } from "../../utils/api";
 
 function GraphOne() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const api = getApiBaseUrl();
   useEffect(() => {
-    fetch("http://192.168.1.11:4000/cashbox")
+    fetch(`${api}/cashbox`)
       .then((response) => response.json())
       .then((data) => {
         setData(data);

@@ -12,7 +12,7 @@ import TableHeader from "@tiptap/extension-table-header";
 
 import TextStyle from "@tiptap/extension-text-style";
 import FontFamily from "@tiptap/extension-font-family";
-
+import { getApiBaseUrl } from "../../utils/api";
 function ReportCreatePage() {
   const { id } = useParams(); // ID категории отчёта
   const router = useRouter();
@@ -22,6 +22,7 @@ function ReportCreatePage() {
 
   const [borderColor, setBorderColor] = useState("#999999");
   const [borderWidth, setBorderWidth] = useState("1");
+  const api = getApiBaseUrl();
 
   const editor = useEditor({
     extensions: [
@@ -83,7 +84,7 @@ function ReportCreatePage() {
     }
 
     try {
-      await axios.post("http://192.168.1.11:4000/rep/new", {
+      await axios.post(`${api}/rep/new`, {
         title: name,
         desc: editor.getHTML(),
         reportId: id,

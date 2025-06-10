@@ -29,6 +29,7 @@ import {
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
 import Select from "react-select";
+import { getApiBaseUrl } from "../../utils/api";
 
 function Offers() {
   const [offers, setoffers] = useState([]);
@@ -45,6 +46,7 @@ function Offers() {
     doctorId: "",
     createdAt: "",
   });
+  const api = getApiBaseUrl();
 
   // Загрузка подкатегорий
   async function loadoffers() {
@@ -88,10 +90,7 @@ function Offers() {
     try {
       if (isEditing) {
         // Обновление
-        await axios.put(
-          `http://192.168.1.11:4000/offer/update/${editingId}`,
-          formData
-        );
+        await axios.put(`${api}/offer/update/${editingId}`, formData);
         toast({
           title: "Услуга обновлена.",
           status: "success",
@@ -101,7 +100,7 @@ function Offers() {
         });
       } else {
         // Создание
-        await axios.post("http://192.168.1.11:4000/offer/new", formData);
+        await axios.post(`${api}/offer/new`, formData);
         toast({
           title: "Услуга создана.",
           status: "success",
@@ -133,7 +132,7 @@ function Offers() {
 
   const handleDeleteoffer = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.11:4000/offer/delete/${id}`);
+      await axios.delete(`${api}/offer/delete/${id}`);
       toast({
         title: "Подкатегория удалена.",
         status: "success",
