@@ -8,11 +8,6 @@ import Footer from "../components/med/footer";
 import ParticlesComponent from "../components/med/particles";
 import { Box } from "@chakra-ui/react";
 
-export function apiHost() {
-  const API_HOST = window.location.hostname;
-  return API_HOST;
-}
-
 export default function RootLayout({ children }) {
   const router = useRouter();
 

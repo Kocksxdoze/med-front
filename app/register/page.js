@@ -16,7 +16,18 @@ import {
   useToast,
   VStack,
   HStack,
-  Collapse,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  SimpleGrid,
+  Tag,
+  TagLabel,
+  TagCloseButton,
 } from "@chakra-ui/react";
 import Header from "../../components/med/header";
 import Footer from "../../components/med/footer";
@@ -38,16 +49,29 @@ function Register() {
   const [labCategories, setLabCategories] = useState([]);
   const [diaCategories, setDiaCategories] = useState([]);
   const [offerCategories, setOfferCategories] = useState([]);
-  const [selectedLab, setSelectedLab] = useState(null);
-  const [selectedDia, setSelectedDia] = useState(null);
-  const [selectedOffer, setSelectedOffer] = useState(null);
-  const [expandedCategory, setExpandedCategory] = useState(null);
-  const [expandedSubcategory, setExpandedSubcategory] = useState(null);
+  const [selectedServices, setSelectedServices] = useState([]);
   const [clientId, setClientId] = useState(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const toast = useToast();
   const api = getApiBaseUrl();
+
+  // Модальные окна для разных типов услуг
+  const {
+    isOpen: isLabOpen,
+    onOpen: onLabOpen,
+    onClose: onLabClose,
+  } = useDisclosure();
+  const {
+    isOpen: isDiaOpen,
+    onOpen: onDiaOpen,
+    onClose: onDiaClose,
+  } = useDisclosure();
+  const {
+    isOpen: isOfferOpen,
+    onOpen: onOfferOpen,
+    onClose: onOfferClose,
+  } = useDisclosure();
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -96,45 +120,43 @@ function Register() {
     formRef.current.benefitId = e.target.value;
   };
 
-  const toggleCategory = (id) => {
-    setExpandedCategory(expandedCategory === id ? null : id);
-    setExpandedSubcategory(null);
-  };
+  const handleServiceSelect = (service, type) => {
+    setSelectedServices((prev) => {
+      // Удаляем предыдущий сервис такого же типа, если он есть
+      const filtered = prev.filter((s) => s.type !== type);
+      return [...filtered, { ...service, type }];
+    });
 
-  const toggleSubcategory = (id) => {
-    setExpandedSubcategory(expandedSubcategory === id ? null : id);
-  };
+    // Обновляем общую сумму долга
+    formRef.current.debt = service.sum || 0;
 
-  const handleLabSelect = (category) => {
-    setSelectedLab(category);
-    setSelectedDia(null);
-    setSelectedOffer(null);
-    formRef.current.debt = category.sum || 0;
-  };
-
-  const handleDiaSelect = (category) => {
-    setSelectedDia(category);
-    setSelectedLab(null);
-    setSelectedOffer(null);
-    formRef.current.debt = category.sum || 0;
-  };
-
-  const handleOfferSelect = async (offer) => {
-    setSelectedOffer(offer);
-    setSelectedLab(null);
-    setSelectedDia(null);
-    formRef.current.debt = offer.sum || 0;
-    formRef.current.doctorId = offer.doctorId;
-
-    if (offer.doctorId) {
-      try {
-        const doctor = await fetcher(`doctor/${offer.doctorId}`);
-        formRef.current.doctor =
-          `${doctor.surname} ${doctor.name}` || "Не указан";
-      } catch (err) {
-        console.error("Error fetching doctor:", err);
-      }
+    // Если это услуга с доктором, получаем информацию о докторе
+    if (type === "offer" && service.doctorId) {
+      fetcher(`doctor/${service.doctorId}`)
+        .then((doctor) => {
+          formRef.current.doctor =
+            `${doctor.surname} ${doctor.name}` || "Не указан";
+          formRef.current.doctorId = service.doctorId;
+        })
+        .catch((err) => console.error("Error fetching doctor:", err));
     }
+
+    // Закрываем модальное окно после выбора
+    if (type === "lab") onLabClose();
+    if (type === "dia") onDiaClose();
+    if (type === "offer") onOfferClose();
+  };
+
+  const removeService = (serviceId) => {
+    setSelectedServices((prev) => prev.filter((s) => s.id !== serviceId));
+    formRef.current.debt = 0;
+  };
+
+  const calculateTotal = () => {
+    return selectedServices.reduce(
+      (sum, service) => sum + (service.sum || 0),
+      0
+    );
   };
 
   const submit = async () => {
@@ -148,12 +170,12 @@ function Register() {
         console.error("Error parsing token:", e);
       }
     }
-    console.log("clientId:", clientId);
+
     const formData = {
       ...formRef.current,
       sex: value2,
       registrator,
-      debt: selectedOffer?.sum || selectedLab?.sum || selectedDia?.sum || 0,
+      debt: calculateTotal(),
     };
 
     try {
@@ -165,7 +187,6 @@ function Register() {
       });
 
       const data = await response.json();
-      console.log("xxxx", data);
       if (!response.ok)
         throw new Error(data.message || "Ошибка создания клиента");
 
@@ -481,7 +502,7 @@ function Register() {
                   name="doctor"
                   onChange={change}
                   placeholder="ФИО врача или номер"
-                  value={formRef.current.doctor || ""}
+                  value={formRef.doctor || ""}
                 />
                 <Input
                   _hover={{ border: "1px solid #0052b4" }}
@@ -490,7 +511,7 @@ function Register() {
                   name="doctorId"
                   onChange={change}
                   placeholder="ID Врача"
-                  value={formRef.current.doctorId || ""}
+                  value={formRef.doctorId || ""}
                 />
               </chakra.span>
 
@@ -593,175 +614,177 @@ function Register() {
               </chakra.span>
             </Flex>
 
-            {/* Блок выбора услуг/лаборатории/диагностики */}
+            {/* Блок выбора услуг - компактный вариант с модальными окнами */}
             <Flex
               px={"100px"}
-              gap={10}
+              gap={5}
               w={"100%"}
               alignItems={"flex-start"}
               mt={8}
+              flexWrap="wrap"
             >
-              <VStack spacing={4} w="100%" align="stretch">
-                <Box>
-                  <Heading size="md" mb={4}>
-                    Лабораторные анализы
-                  </Heading>
-                  <VStack spacing={2} align="stretch">
-                    {labCategories.map((category) => (
-                      <Button
-                        key={category.id}
-                        onClick={() => handleLabSelect(category)}
-                        colorScheme={
-                          selectedLab?.id === category.id ? "blue" : "gray"
-                        }
-                        variant={
-                          selectedLab?.id === category.id ? "solid" : "outline"
-                        }
-                        justifyContent="flex-start"
-                      >
-                        <HStack justify="space-between" w="100%">
-                          <Text>{category.name}</Text>
-                          <Text fontWeight="bold">{category.sum} сум</Text>
-                        </HStack>
-                      </Button>
-                    ))}
-                  </VStack>
-                </Box>
+              <Button colorScheme="blue" variant="outline" onClick={onLabOpen}>
+                + Лабораторные анализы
+              </Button>
 
-                <Box>
-                  <Heading size="md" mb={4}>
-                    Диагностические исследования
-                  </Heading>
-                  <VStack spacing={2} align="stretch">
-                    {diaCategories.map((category) => (
-                      <Button
-                        key={category.id}
-                        onClick={() => handleDiaSelect(category)}
-                        colorScheme={
-                          selectedDia?.id === category.id ? "blue" : "gray"
-                        }
-                        variant={
-                          selectedDia?.id === category.id ? "solid" : "outline"
-                        }
-                        justifyContent="flex-start"
-                      >
-                        <HStack justify="space-between" w="100%">
-                          <Text>{category.name}</Text>
-                          <Text fontWeight="bold">{category.sum} сум</Text>
-                        </HStack>
-                      </Button>
-                    ))}
-                  </VStack>
-                </Box>
+              <Button colorScheme="blue" variant="outline" onClick={onDiaOpen}>
+                + Диагностические исследования
+              </Button>
 
-                <Box>
-                  <Heading size="md" mb={4}>
-                    Медицинские услуги
-                  </Heading>
+              <Button
+                colorScheme="blue"
+                variant="outline"
+                onClick={onOfferOpen}
+              >
+                + Медицинские услуги
+              </Button>
+
+              {/* Отображение выбранных услуг */}
+              {selectedServices.length > 0 && (
+                <Box mt={4} w="100%">
+                  <Text fontWeight="bold" mb={2}>
+                    Выбранные услуги:
+                  </Text>
+                  <SimpleGrid columns={3} spacing={2}>
+                    {selectedServices.map((service) => (
+                      <Tag
+                        key={service.id}
+                        size="lg"
+                        borderRadius="full"
+                        variant="solid"
+                        colorScheme="blue"
+                      >
+                        <TagLabel>
+                          {service.name} - {service.sum} сум
+                        </TagLabel>
+                        <TagCloseButton
+                          onClick={() => removeService(service.id)}
+                        />
+                      </Tag>
+                    ))}
+                  </SimpleGrid>
+                  <Text mt={2} fontWeight="bold">
+                    Общая сумма: {calculateTotal()} сум
+                  </Text>
+                </Box>
+              )}
+            </Flex>
+
+            {/* Модальное окно для лабораторных анализов */}
+            <Modal isOpen={isLabOpen} onClose={onLabClose} size="xl">
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Выберите лабораторный анализ</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
                   <VStack spacing={4}>
-                    {offerCategories.map((category) => (
+                    {labCategories.map((category) => (
                       <Box key={category.id} w="100%">
                         <Button
                           w="100%"
-                          onClick={() => toggleCategory(category.id)}
-                          color="#000"
-                          border="1px solid #000"
-                          fontWeight="400"
-                          fontSize="20px"
-                          variant="ghost"
-                          _hover={{
-                            color: "#fff",
-                            background: "#0052b4",
-                            border: "1px solid transparent",
-                          }}
+                          onClick={() => handleServiceSelect(category, "lab")}
+                          colorScheme="blue"
+                          variant="outline"
+                          justifyContent="space-between"
                         >
-                          {category.categoryName}
+                          <Text>{category.name}</Text>
+                          <Text fontWeight="bold">{category.sum} сум</Text>
                         </Button>
-
-                        <Collapse
-                          in={expandedCategory === category.id}
-                          animateOpacity
-                        >
-                          <VStack align="start" pl={5} mt={2} spacing={3}>
-                            {category.subcategories?.map((sub) => (
-                              <Box key={sub.id} w="100%">
-                                <Button
-                                  fontSize="17px"
-                                  variant="ghost"
-                                  onClick={() => toggleSubcategory(sub.id)}
-                                  color="#000"
-                                  border="1px solid #000"
-                                  fontWeight="400"
-                                  _hover={{
-                                    color: "#fff",
-                                    background: "#0052b4",
-                                    border: "1px solid transparent",
-                                  }}
-                                >
-                                  {sub.name}
-                                </Button>
-
-                                <Collapse
-                                  in={expandedSubcategory === sub.id}
-                                  animateOpacity
-                                >
-                                  <VStack align="start" pl={5} mt={2}>
-                                    {sub.offers?.map((offer) => (
-                                      <HStack key={offer.id} spacing={4}>
-                                        <Text fontSize="17px">
-                                          {offer.name} — {offer.sum} сум
-                                        </Text>
-                                        <Button
-                                          size="sm"
-                                          colorScheme="blue"
-                                          onClick={() =>
-                                            handleOfferSelect(offer)
-                                          }
-                                        >
-                                          Выбрать
-                                        </Button>
-                                      </HStack>
-                                    ))}
-                                  </VStack>
-                                </Collapse>
-                              </Box>
-                            ))}
-                          </VStack>
-                        </Collapse>
                       </Box>
                     ))}
                   </VStack>
-                </Box>
-              </VStack>
-            </Flex>
+                </ModalBody>
+                <ModalFooter>
+                  <Button colorScheme="blue" onClick={onLabClose}>
+                    Закрыть
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
 
-            {/* Отображение выбранной услуги */}
-            {(selectedLab || selectedDia || selectedOffer) && (
-              <Box mt={4} p={4} bg="blue.50" borderRadius="md" mx="100px">
-                <Text fontWeight="bold">Выбрано:</Text>
-                {selectedLab && (
-                  <Text>
-                    Лабораторный анализ: {selectedLab.name} - {selectedLab.sum}{" "}
-                    сум
-                  </Text>
-                )}
-                {selectedDia && (
-                  <Text>
-                    Диагностика: {selectedDia.name} - {selectedDia.sum} сум
-                  </Text>
-                )}
-                {selectedOffer && (
-                  <>
-                    <Text>
-                      Услуга: {selectedOffer.name} - {selectedOffer.sum} сум
-                    </Text>
-                    {formRef.current.doctor && (
-                      <Text>Врач: {formRef.current.doctor}</Text>
-                    )}
-                  </>
-                )}
-              </Box>
-            )}
+            {/* Модальное окно для диагностических исследований */}
+            <Modal isOpen={isDiaOpen} onClose={onDiaClose} size="xl">
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Выберите диагностическое исследование</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <VStack spacing={4}>
+                    {diaCategories.map((category) => (
+                      <Box key={category.id} w="100%">
+                        <Button
+                          w="100%"
+                          onClick={() => handleServiceSelect(category, "dia")}
+                          colorScheme="blue"
+                          variant="outline"
+                          justifyContent="space-between"
+                        >
+                          <Text>{category.name}</Text>
+                          <Text fontWeight="bold">{category.sum} сум</Text>
+                        </Button>
+                      </Box>
+                    ))}
+                  </VStack>
+                </ModalBody>
+                <ModalFooter>
+                  <Button colorScheme="blue" onClick={onDiaClose}>
+                    Закрыть
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+
+            {/* Модальное окно для медицинских услуг */}
+            <Modal isOpen={isOfferOpen} onClose={onOfferClose} size="xl">
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Выберите медицинскую услугу</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <VStack spacing={4}>
+                    {offerCategories.map((category) => (
+                      <Box key={category.id} w="100%">
+                        <Text fontWeight="bold" mb={2}>
+                          {category.categoryName}
+                        </Text>
+                        <VStack pl={4} spacing={2}>
+                          {category.subcategories?.map((sub) => (
+                            <Box key={sub.id} w="100%">
+                              <Text fontWeight="semibold" mb={1}>
+                                {sub.name}
+                              </Text>
+                              <VStack pl={4} spacing={1}>
+                                {sub.offers?.map((offer) => (
+                                  <Button
+                                    key={offer.id}
+                                    w="100%"
+                                    onClick={() =>
+                                      handleServiceSelect(offer, "offer")
+                                    }
+                                    variant="ghost"
+                                    justifyContent="space-between"
+                                  >
+                                    <Text textAlign="left">{offer.name}</Text>
+                                    <Text fontWeight="bold">
+                                      {offer.sum} сум
+                                    </Text>
+                                  </Button>
+                                ))}
+                              </VStack>
+                            </Box>
+                          ))}
+                        </VStack>
+                      </Box>
+                    ))}
+                  </VStack>
+                </ModalBody>
+                <ModalFooter>
+                  <Button colorScheme="blue" onClick={onOfferClose}>
+                    Закрыть
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
 
             {/* Кнопки отправки формы */}
             <Flex
@@ -793,30 +816,10 @@ function Register() {
             </Flex>
 
             {/* Компонент для отправки данных анализов/услуг после создания клиента */}
-            {clientId !== null && (
+            {clientId !== null && selectedServices.length > 0 && (
               <Reg
                 clientId={clientId}
-                name={
-                  selectedLab?.name ||
-                  selectedDia?.name ||
-                  selectedOffer?.name ||
-                  ""
-                }
-                price={
-                  selectedLab?.sum ||
-                  selectedDia?.sum ||
-                  selectedOffer?.sum ||
-                  0
-                }
-                labId={selectedLab?.id}
-                analise={
-                  selectedLab?.about ||
-                  selectedDia?.about ||
-                  selectedOffer?.about ||
-                  "none"
-                }
-                diaId={selectedDia?.id}
-                offerId={selectedOffer?.id}
+                services={selectedServices}
                 onSuccess={() => router.push(`/patient/${clientId}`)}
               />
             )}

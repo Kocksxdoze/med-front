@@ -109,7 +109,7 @@ function SubCategories() {
 
   const handleDeleteSubCategory = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.11:4000/sub/delete/${id}`);
+      await axios.delete(`${api}/sub/delete/${id}`);
       toast({
         title: "Подкатегория удалена.",
         status: "success",

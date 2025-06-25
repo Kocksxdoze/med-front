@@ -28,7 +28,7 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
-
+import { getApiBaseUrl } from "../../utils/api";
 function AppOffers() {
   const [bases, setBases] = useState([]);
   const [search, setSearch] = useState("");
@@ -40,7 +40,7 @@ function AppOffers() {
     name: "",
     desc: "",
   });
-
+  const api = getApiBaseUrl();
   async function loadbases() {
     const data = await fetcher("appos");
     setBases(Array.isArray(data) ? data : []);
@@ -59,10 +59,7 @@ function AppOffers() {
   const handleCreatebase = async () => {
     try {
       if (isEditing) {
-        await axios.put(
-          `http://192.168.1.11:4000/appo/update/${editingId}`,
-          formData
-        );
+        await axios.put(`${api}/appo/update/${editingId}`, formData);
         toast({
           title: "Услуга обновлён.",
           status: "success",
@@ -71,7 +68,7 @@ function AppOffers() {
           position: "bottom-right",
         });
       } else {
-        await axios.post("http://192.168.1.11:4000/appo/new", formData);
+        await axios.post(`${api}/appo/new`, formData);
         toast({
           title: "Услуга создан.",
           status: "success",
@@ -101,7 +98,7 @@ function AppOffers() {
 
   const handleDeleteBase = async (id) => {
     try {
-      await axios.delete(`http://192.168.1.11:4000/appo/delete/${id}`);
+      await axios.delete(`${api}/appo/delete/${id}`);
       toast({
         title: "Услуга удалён.",
         status: "success",

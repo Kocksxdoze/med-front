@@ -116,13 +116,13 @@ const Registration = ({ onSelectOffer, type = "service" }) => {
     if (type === "lab") {
       offer.name = item.name || "Лабораторный анализ";
       offer.price = item.price || item.sum;
-      offer.about = item.description || "Лабораторное исследование";
-      offer.analise = item.description || "Лабораторное исследование";
+      offer.about = item.about || "Лабораторное исследование";
+      offer.analise = item.about || "Лабораторное исследование";
     } else if (type === "dia") {
       offer.name = item.name || "Диагностическая процедура";
       offer.price = item.price || item.sum;
-      offer.about = item.description || "Диагностическое исследование";
-      offer.analise = item.description || "Диагностическое исследование";
+      offer.about = item.about || "Диагностическое исследование";
+      offer.analise = item.about || "Диагностическое исследование";
     }
 
     onSelectOffer(offer);
@@ -217,9 +217,9 @@ const OfferItem = ({ item, onSelect }) => {
         <Text fontSize="17px" fontWeight="500">
           {item.name}
         </Text>
-        {item.description && (
+        {item.about && (
           <Text fontSize="14px" color="gray.600">
-            {item.description}
+            {item.about}
           </Text>
         )}
         <Text fontSize="16px" fontWeight="600">

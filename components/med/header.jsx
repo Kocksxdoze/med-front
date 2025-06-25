@@ -12,9 +12,11 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  InputGroup,
+  InputRightElement,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
-import { ChevronDownIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, SearchIcon } from "@chakra-ui/icons";
 import fetcher from "../../utils/fetcher";
 import Cookies from "js-cookie";
 import jwt from "jsonwebtoken";
@@ -33,6 +35,13 @@ function Header() {
   const token = Cookies.get("token");
   const decoded = jwt.decode(token);
   const role = decoded?.role;
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e) => {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      router.push(`/patients?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   useEffect(() => {
     const updateTime = () => {
@@ -161,23 +170,43 @@ function Header() {
             </Box>
           </Heading>
 
-          <Input
-            w={"35%"}
-            placeholder="Пац ID или Ф.И.О."
-            bg={"transparent"}
-            border={0}
-            outline={"none"}
-            fontSize={"16px"}
-            p={"10px 0"}
-            borderBottom={"1px solid #000"}
-            borderRadius={0}
-            color={"#000"}
-            _focus={{
-              outline: "none",
-              boxShadow: "none",
-              borderBottom: "1px solid #000",
-            }}
-          />
+          <InputGroup w={"35%"}>
+            <Input
+              placeholder="Пац ID или Ф.И.О."
+              bg={"transparent"}
+              border={0}
+              outline={"none"}
+              fontSize={"16px"}
+              p={"10px 0"}
+              borderBottom={"1px solid #000"}
+              borderRadius={0}
+              color={"#000"}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearch}
+              _focus={{
+                outline: "none",
+                boxShadow: "none",
+                borderBottom: "1px solid #000",
+              }}
+            />
+            <InputRightElement>
+              <Button
+                size="sm"
+                onClick={() => {
+                  if (searchQuery.trim()) {
+                    router.push(
+                      `/patients?search=${encodeURIComponent(
+                        searchQuery.trim()
+                      )}`
+                    );
+                  }
+                }}
+              >
+                <SearchIcon />
+              </Button>
+            </InputRightElement>
+          </InputGroup>
           <Text>число пациентов: {clientsCount}</Text>
           <Text>
             {time} {weekday.charAt(0).toUpperCase() + weekday.slice(1)}, {year}

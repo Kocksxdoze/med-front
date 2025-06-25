@@ -25,6 +25,7 @@ import { SimpleGrid } from "@chakra-ui/react";
 const CalendarClient = dynamic(() => import("./calendar"), {
   ssr: false,
 });
+import { getApiBaseUrl } from "../../utils/api";
 
 function Appointment() {
   const [appointments, setAppointments] = useState([]);
@@ -52,6 +53,7 @@ function Appointment() {
   const [doctors, setDoctors] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const api = getApiBaseUrl();
 
   const safeGet = async (url) => {
     try {
@@ -69,11 +71,11 @@ function Appointment() {
   const loadData = async () => {
     try {
       const [types, benefits, offers, doctors, apps] = await Promise.all([
-        safeGet("http://192.168.1.11:4000/types"),
-        safeGet("http://192.168.1.11:4000/benefits"),
-        safeGet("http://192.168.1.11:4000/offers"),
-        safeGet("http://192.168.1.11:4000/doctors"),
-        safeGet("http://192.168.1.11:4000/apps"),
+        safeGet(`${api}/types`),
+        safeGet(`${api}/benefits`),
+        safeGet(`${api}/offers`),
+        safeGet(`${api}/doctors`),
+        safeGet(`${api}/apps`),
       ]);
 
       setTypes(types);
@@ -112,10 +114,7 @@ function Appointment() {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post(
-        "http://192.168.1.11:4000/app/new",
-        formData
-      );
+      const response = await axios.post(`${api}/app/new`, formData);
       toast({
         title: "Встреча назначена",
         status: "success",

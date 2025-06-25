@@ -4,6 +4,8 @@ import fetchClients from "../../utils/fetchClients";
 import {
   Box,
   Input,
+  InputGroup,
+  InputRightElement,
   Table,
   Thead,
   Tbody,
@@ -11,36 +13,55 @@ import {
   Th,
   Td,
   TableContainer,
-  InputGroup,
-  InputRightElement,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 function Patients() {
   const [patients, setPatients] = useState([]);
   const [search, setSearch] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlSearchQuery = searchParams.get("search");
 
   useEffect(() => {
+    // Устанавливаем поисковый запрос из URL при загрузке
+    if (urlSearchQuery) {
+      setSearch(decodeURIComponent(urlSearchQuery));
+    }
+
     async function loadPatients() {
       const data = await fetchClients();
       setPatients(Array.isArray(data) ? data : []);
     }
     loadPatients();
-  }, []);
+  }, [urlSearchQuery]);
 
   const filteredPatients = patients.filter((patient) =>
     [
-      patient?.id,
+      patient?.id?.toString(),
       patient?.name,
       patient?.surname,
-      patient?.lastname,
-      patient?.createdAt,
+      patient?.lastName,
+      `${patient?.surname} ${patient?.name} ${patient?.lastName}`,
+      patient?.phoneNumber,
+      patient?.homePhone,
+      patient?.dateBirth,
     ].some((field) =>
       field?.toString().toLowerCase().includes(search.toLowerCase())
     )
   );
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+    // Обновляем URL при изменении поиска
+    if (value.trim()) {
+      router.push(`/patients?search=${encodeURIComponent(value.trim())}`);
+    } else {
+      router.push("/patients");
+    }
+  };
 
   return (
     <Box p={4} borderRadius={"16px"} w="100%" overflowX="auto" bg="#fff">
@@ -52,7 +73,7 @@ function Patients() {
             color: "black",
           }}
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={handleSearchChange}
           border="1px solid #000"
           pr="2.5rem"
         />

@@ -24,10 +24,15 @@ import {
   Stack,
   VStack,
   Heading,
+  Select,
+  Collapse,
+  HStack,
+  useToast,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { getApiBaseUrl } from "../../utils/api";
+import fetcher from "../../utils/fetcher";
 
 // Функция для перевода названий колонок на русский
 const translateColumn = (columnName) => {
@@ -117,7 +122,13 @@ export default function PatientPage() {
     diagnostics: [],
     offers: [],
   });
+  const [offerCategories, setOfferCategories] = useState([]);
+  const [expandedCategory, setExpandedCategory] = useState(null);
+  const [expandedSubcategory, setExpandedSubcategory] = useState(null);
+  const [selectedOffers, setSelectedOffers] = useState([]);
+  const [loading, setLoading] = useState(false);
   const api = getApiBaseUrl();
+  const toast = useToast();
 
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const componentRef = useRef();
@@ -147,8 +158,46 @@ export default function PatientPage() {
     }
   };
 
+  const fetchOfferCategories = async () => {
+    try {
+      setLoading(true);
+      const mainCategories = await fetcher("categories");
+
+      const categoriesWithData = await Promise.all(
+        mainCategories.map(async (category) => {
+          const subcategories = await fetcher(`categories/${category.id}/sub`);
+
+          const subcategoriesWithOffers = await Promise.all(
+            subcategories.map(async (sub) => {
+              const offers = await fetcher(
+                `categories/${category.id}/sub/${sub.id}/offers`
+              );
+              return { ...sub, offers };
+            })
+          );
+
+          return { ...category, subcategories: subcategoriesWithOffers };
+        })
+      );
+
+      setOfferCategories(categoriesWithData);
+    } catch (err) {
+      console.error("Ошибка загрузки услуг:", err);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить категории услуг",
+        status: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    if (id) fetchPatientData();
+    if (id) {
+      fetchPatientData();
+      fetchOfferCategories();
+    }
   }, [id]);
 
   function calculateAge(dateString) {
@@ -168,15 +217,23 @@ export default function PatientPage() {
       setFormState({
         name: patientData?.name || "",
         surname: patientData?.surname || "",
-        patronymic: patientData?.lastName || "",
+        lastName: patientData?.lastName || "",
         phoneNumber: patientData?.phoneNumber || "",
-        age: patientData?.dateBirth || "",
+        dateBirth: patientData?.dateBirth || "",
         republic: patientData?.republic || "",
         region: patientData?.region || "",
         street: patientData?.street || "",
         addres: patientData?.addres || "",
-        registrator: patientData?.registrator || "",
+        homePhone: patientData?.homePhone || "",
+        email: patientData?.email || "",
+        socialPlace: patientData?.socialPlace || "",
+        passportSeries: patientData?.passportSeries || "",
+        passportNum: patientData?.passportNum || "",
+        passportGiver: patientData?.passportGiver || "",
+        work: patientData?.work || "",
       });
+    } else if (type === "offers") {
+      setSelectedOffers([]);
     } else {
       setFormState({ paymentAmount: "" });
       setPaymentType("payment");
@@ -214,23 +271,74 @@ export default function PatientPage() {
 
     if (editType === "info") {
       updatePayload = {
-        name: formState.name,
-        surname: formState.surname,
-        patronymic: formState.patronymic,
-        phoneNumber: formState.phoneNumber,
-        age: formState.age,
+        ...formState,
+        // Убедимся, что дата в правильном формате
+        dateBirth: formState.dateBirth,
       };
     }
 
-    await fetch(`${api}/client/edit/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatePayload),
-    });
+    try {
+      setLoading(true);
+      await fetch(`${api}/client/edit/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatePayload),
+      });
 
-    await fetchPatientData();
-    setEditType(null);
-    onModalClose();
+      if (editType === "offers" && selectedOffers.length > 0) {
+        await Promise.all(
+          selectedOffers.map((offer) =>
+            fetcher("offer/new", {
+              method: "POST",
+              body: JSON.stringify({
+                clientId: id,
+                offerId: offer.id,
+                price: offer.sum,
+                name: offer.name,
+                doctorId: offer.doctorId,
+              }),
+            })
+          )
+        );
+      }
+
+      await fetchPatientData();
+      toast({
+        title: "Успешно",
+        description: "Данные успешно обновлены",
+        status: "success",
+      });
+      onModalClose();
+    } catch (error) {
+      console.error("Error saving data:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось сохранить данные",
+        status: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleCategory = (id) => {
+    setExpandedCategory(expandedCategory === id ? null : id);
+    setExpandedSubcategory(null);
+  };
+
+  const toggleSubcategory = (id) => {
+    setExpandedSubcategory(expandedSubcategory === id ? null : id);
+  };
+
+  const toggleOfferSelection = (offer) => {
+    setSelectedOffers((prev) => {
+      const existingIndex = prev.findIndex((o) => o.id === offer.id);
+      if (existingIndex >= 0) {
+        return prev.filter((o) => o.id !== offer.id);
+      } else {
+        return [...prev, offer];
+      }
+    });
   };
 
   const handlePrintModalOpen = () => {
@@ -251,58 +359,58 @@ export default function PatientPage() {
     const newWindow = window.open("", "_blank");
 
     newWindow.document.write(`
-        <html>
-          <head>
-            <title>ROSHIDON medical center</title>
-            <style>
-              body {
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-                margin: 20px;
-                background: #fff;
-                color: #000;
-              }
-              table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 1.5rem;
-              }
-              th, td {
-                border: 1px solid #000;
-                padding: 8px;
-                text-align: left;
-              }
-              th {
-                background-color: #eee;
-              }
-              .header {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              }
-              .header-title {
-                font-size: 24px;
-                font-weight: bold;
-              }
-              #logo {
-                width: 150px;
-                height: 120px;
-              }
-              .info-section {
-                margin-bottom: 20px;
-              }
-              .print-section {
-                margin-bottom: 30px;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <img id="logo" src="/roshidonbg.png" alt="ROSHIDON Logo" />
-            </div>
-            ${printContents}
-          </body>
-        </html>
-      `);
+      <html>
+        <head>
+          <title>ROSHIDON medical center</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+              margin: 20px;
+              background: #fff;
+              color: #000;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 1.5rem;
+            }
+            th, td {
+              border: 1px solid #000;
+              padding: 8px;
+              text-align: left;
+            }
+            th {
+              background-color: #eee;
+            }
+            .header {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .header-title {
+              font-size: 24px;
+              font-weight: bold;
+            }
+            #logo {
+              width: 150px;
+              height: 120px;
+            }
+            .info-section {
+              margin-bottom: 20px;
+            }
+            .print-section {
+              margin-bottom: 30px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <img id="logo" src="/roshidonbg.png" alt="ROSHIDON Logo" />
+          </div>
+          ${printContents}
+        </body>
+      </html>
+    `);
 
     newWindow.document.close();
     setTimeout(() => {
@@ -318,20 +426,20 @@ export default function PatientPage() {
 
     if (selectedItems.info) {
       content.push(`
-          <div class="info-section">
-            <h1 style="text-align:center;">ROSHIDON <br/><span style="font-size: 0.75em;">medical center</span></h1>
-            <p>Ф.И.О: ${patientData.surname || ""} ${patientData.name || ""} ${
+        <div class="info-section">
+          <h1 style="text-align:center;">ROSHIDON <br/><span style="font-size: 0.75em;">medical center</span></h1>
+          <p>Ф.И.О: ${patientData.surname || ""} ${patientData.name || ""} ${
         patientData.lastName || ""
       }</p>
-            <p>Дата: ${new Date().toLocaleString("ru-RU")}</p>
-            <p>Возраст: ${calculateAge(patientData.dateBirth) || ""}</p>
-            <p>Телефон: ${patientData.phoneNumber || ""}</p>
-            <p>Баланс: ${patientData.balance || 0} UZS</p>
-            <p>Долг: ${patientData.debt || 0} UZS</p>
-            <p>Регистратор: ${patientData.registrator || 0}</p>
-            <hr/>
-          </div>
-        `);
+          <p>Дата: ${new Date().toLocaleString("ru-RU")}</p>
+          <p>Возраст: ${calculateAge(patientData.dateBirth) || ""}</p>
+          <p>Телефон: ${patientData.phoneNumber || ""}</p>
+          <p>Баланс: ${patientData.balance || 0} UZS</p>
+          <p>Долг: ${patientData.debt || 0} UZS</p>
+          <p>Регистратор: ${patientData.registrator || 0}</p>
+          <hr/>
+        </div>
+      `);
     }
 
     if (
@@ -357,11 +465,11 @@ export default function PatientPage() {
             .join("");
 
           content.push(`
-              <table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
-                <thead><tr>${header}</tr></thead>
-                <tbody><tr>${cells}</tr></tbody>
-              </table>
-            `);
+            <table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
+              <thead><tr>${header}</tr></thead>
+              <tbody><tr>${cells}</tr></tbody>
+            </table>
+          `);
         }
       });
 
@@ -393,11 +501,11 @@ export default function PatientPage() {
             .join("");
 
           content.push(`
-              <table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
-                <thead><tr>${header}</tr></thead>
-                <tbody><tr>${cells}</tr></tbody>
-              </table>
-            `);
+            <table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
+              <thead><tr>${header}</tr></thead>
+              <tbody><tr>${cells}</tr></tbody>
+            </table>
+          `);
         }
       });
 
@@ -421,11 +529,11 @@ export default function PatientPage() {
           const cells = keys.map((k) => `<td>${offer[k] ?? ""}</td>`).join("");
 
           content.push(`
-              <table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
-                <thead><tr>${header}</tr></thead>
-                <tbody><tr>${cells}</tr></tbody>
-              </table>
-            `);
+            <table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
+              <thead><tr>${header}</tr></thead>
+              <tbody><tr>${cells}</tr></tbody>
+            </table>
+          `);
         }
       });
 
@@ -628,7 +736,9 @@ export default function PatientPage() {
               ? paymentType === "payment"
                 ? "Внести оплату"
                 : "Списать средства"
-              : "Редактировать личные данные"}
+              : editType === "info"
+              ? "Редактировать личные данные"
+              : "Добавить услуги"}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -672,8 +782,8 @@ export default function PatientPage() {
             )}
 
             {editType === "info" && (
-              <>
-                <FormControl mb={3}>
+              <SimpleGrid columns={2} spacing={4}>
+                <FormControl>
                   <FormLabel>Фамилия</FormLabel>
                   <Input
                     value={formState.surname || ""}
@@ -683,7 +793,7 @@ export default function PatientPage() {
                     placeholder="Фамилия"
                   />
                 </FormControl>
-                <FormControl mb={3}>
+                <FormControl>
                   <FormLabel>Имя</FormLabel>
                   <Input
                     value={formState.name || ""}
@@ -693,17 +803,27 @@ export default function PatientPage() {
                     placeholder="Имя"
                   />
                 </FormControl>
-                <FormControl mb={3}>
+                <FormControl>
                   <FormLabel>Отчество</FormLabel>
                   <Input
-                    value={formState.patronymic || ""}
+                    value={formState.lastName || ""}
                     onChange={(e) =>
-                      setFormState({ ...formState, patronymic: e.target.value })
+                      setFormState({ ...formState, lastName: e.target.value })
                     }
                     placeholder="Отчество"
                   />
                 </FormControl>
-                <FormControl mb={3}>
+                <FormControl>
+                  <FormLabel>Дата рождения</FormLabel>
+                  <Input
+                    type="date"
+                    value={formState.dateBirth || ""}
+                    onChange={(e) =>
+                      setFormState({ ...formState, dateBirth: e.target.value })
+                    }
+                  />
+                </FormControl>
+                <FormControl>
                   <FormLabel>Телефон</FormLabel>
                   <Input
                     value={formState.phoneNumber || ""}
@@ -716,7 +836,226 @@ export default function PatientPage() {
                     placeholder="Телефон"
                   />
                 </FormControl>
-              </>
+                <FormControl>
+                  <FormLabel>Домашний телефон</FormLabel>
+                  <Input
+                    value={formState.homePhone || ""}
+                    onChange={(e) =>
+                      setFormState({
+                        ...formState,
+                        homePhone: e.target.value,
+                      })
+                    }
+                    placeholder="Домашний телефон"
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Email</FormLabel>
+                  <Input
+                    value={formState.email || ""}
+                    onChange={(e) =>
+                      setFormState({ ...formState, email: e.target.value })
+                    }
+                    placeholder="Email"
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Социальное положение</FormLabel>
+                  <Input
+                    value={formState.socialPlace || ""}
+                    onChange={(e) =>
+                      setFormState({
+                        ...formState,
+                        socialPlace: e.target.value,
+                      })
+                    }
+                    placeholder="Социальное положение"
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Республика</FormLabel>
+                  <Input
+                    value={formState.republic || ""}
+                    onChange={(e) =>
+                      setFormState({ ...formState, republic: e.target.value })
+                    }
+                    placeholder="Республика"
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Регион</FormLabel>
+                  <Input
+                    value={formState.region || ""}
+                    onChange={(e) =>
+                      setFormState({ ...formState, region: e.target.value })
+                    }
+                    placeholder="Регион"
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Район</FormLabel>
+                  <Input
+                    value={formState.street || ""}
+                    onChange={(e) =>
+                      setFormState({ ...formState, street: e.target.value })
+                    }
+                    placeholder="Район"
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Адрес</FormLabel>
+                  <Input
+                    value={formState.addres || ""}
+                    onChange={(e) =>
+                      setFormState({ ...formState, addres: e.target.value })
+                    }
+                    placeholder="Адрес"
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Серия паспорта</FormLabel>
+                  <Input
+                    value={formState.passportSeries || ""}
+                    onChange={(e) =>
+                      setFormState({
+                        ...formState,
+                        passportSeries: e.target.value,
+                      })
+                    }
+                    placeholder="Серия паспорта"
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Номер паспорта</FormLabel>
+                  <Input
+                    value={formState.passportNum || ""}
+                    onChange={(e) =>
+                      setFormState({
+                        ...formState,
+                        passportNum: e.target.value,
+                      })
+                    }
+                    placeholder="Номер паспорта"
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Кем выдан</FormLabel>
+                  <Input
+                    value={formState.passportGiver || ""}
+                    onChange={(e) =>
+                      setFormState({
+                        ...formState,
+                        passportGiver: e.target.value,
+                      })
+                    }
+                    placeholder="Кем выдан"
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Место работы/учебы</FormLabel>
+                  <Input
+                    value={formState.work || ""}
+                    onChange={(e) =>
+                      setFormState({ ...formState, work: e.target.value })
+                    }
+                    placeholder="Место работы/учебы"
+                  />
+                </FormControl>
+              </SimpleGrid>
+            )}
+
+            {editType === "offers" && (
+              <Box>
+                <Text mb={4}>Выбрано услуг: {selectedOffers.length}</Text>
+                {selectedOffers.length > 0 && (
+                  <Box mb={4} p={3} bg="blue.50" borderRadius="md">
+                    <Text fontWeight="bold">Выбранные услуги:</Text>
+                    {selectedOffers.map((offer) => (
+                      <Text key={offer.id}>
+                        {offer.name} - {offer.sum} сум
+                      </Text>
+                    ))}
+                  </Box>
+                )}
+
+                <VStack
+                  spacing={4}
+                  align="stretch"
+                  maxH="400px"
+                  overflowY="auto"
+                >
+                  {offerCategories.map((category) => (
+                    <Box key={category.id} w="100%">
+                      <Button
+                        w="100%"
+                        onClick={() => toggleCategory(category.id)}
+                        color="#000"
+                        border="1px solid #000"
+                        fontWeight="400"
+                        fontSize="20px"
+                        variant="ghost"
+                        _hover={{
+                          color: "#fff",
+                          background: "#0052b4",
+                          border: "1px solid transparent",
+                        }}
+                      >
+                        {category.categoryName}
+                      </Button>
+
+                      <Collapse
+                        in={expandedCategory === category.id}
+                        animateOpacity
+                      >
+                        <VStack align="start" pl={5} mt={2} spacing={3}>
+                          {category.subcategories?.map((sub) => (
+                            <Box key={sub.id} w="100%">
+                              <Button
+                                fontSize="17px"
+                                variant="ghost"
+                                onClick={() => toggleSubcategory(sub.id)}
+                                color="#000"
+                                border="1px solid #000"
+                                fontWeight="400"
+                                _hover={{
+                                  color: "#fff",
+                                  background: "#0052b4",
+                                  border: "1px solid transparent",
+                                }}
+                              >
+                                {sub.name}
+                              </Button>
+
+                              <Collapse
+                                in={expandedSubcategory === sub.id}
+                                animateOpacity
+                              >
+                                <VStack align="start" pl={5} mt={2}>
+                                  {sub.offers?.map((offer) => (
+                                    <HStack key={offer.id} spacing={4}>
+                                      <Text fontSize="17px">
+                                        {offer.name} — {offer.sum} сум
+                                      </Text>
+                                      <Checkbox
+                                        isChecked={selectedOffers.some(
+                                          (o) => o.id === offer.id
+                                        )}
+                                        onChange={() =>
+                                          toggleOfferSelection(offer)
+                                        }
+                                      />
+                                    </HStack>
+                                  ))}
+                                </VStack>
+                              </Collapse>
+                            </Box>
+                          ))}
+                        </VStack>
+                      </Collapse>
+                    </Box>
+                  ))}
+                </VStack>
+              </Box>
             )}
           </ModalBody>
 
@@ -724,7 +1063,11 @@ export default function PatientPage() {
             <Button variant="ghost" mr={3} onClick={onModalClose}>
               Отмена
             </Button>
-            <Button colorScheme="blue" onClick={handleSaveEdit}>
+            <Button
+              colorScheme="blue"
+              onClick={handleSaveEdit}
+              isLoading={loading}
+            >
               Сохранить
             </Button>
           </ModalFooter>
