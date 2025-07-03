@@ -99,30 +99,8 @@ function Header() {
   useEffect(() => {
     clients();
   }, []);
-  useEffect(() => {
-    const savedTime = localStorage.getItem("logoutTimer");
-    if (savedTime) {
-      const elapsedTime = Math.floor((Date.now() - parseInt(savedTime)) / 1000);
-      setRemainingTime(Math.max(3600 - elapsedTime, 0));
-    } else {
-      localStorage.setItem("logoutTimer", Date.now().toString());
-    }
-
-    const interval = setInterval(() => {
-      setRemainingTime((prev) => {
-        if (prev <= 1) {
-          logout();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const logout = () => {
-    localStorage.removeItem("logoutTimer");
     router.push("/auth");
   };
 
@@ -213,14 +191,18 @@ function Header() {
           </Text>
           <Button
             bg={"transparent"}
-            borderBottom={"1px solid black"}
-            borderRadius={"none"}
-            fontWeight={"500"}
+            borderRadius={"8px"}
+            border={"1px solid #000"}
+            color={"#000"}
+            fontWeight={"600"}
             onClick={logout}
-            _hover={{ hover: "none" }}
+            _hover={{
+              backgroundColor: "#0052b4",
+              border: "1px solid #0052b4",
+              color: "#fff",
+            }}
           >
-            Выход ({Math.floor(remainingTime / 60)}:
-            {String(remainingTime % 60).padStart(2, "0")})
+            Выход
           </Button>
         </Box>
 

@@ -502,7 +502,6 @@ function Register() {
                   name="doctor"
                   onChange={change}
                   placeholder="ФИО врача или номер"
-                  value={formRef.doctor || ""}
                 />
                 <Input
                   _hover={{ border: "1px solid #0052b4" }}
@@ -511,7 +510,6 @@ function Register() {
                   name="doctorId"
                   onChange={change}
                   placeholder="ID Врача"
-                  value={formRef.doctorId || ""}
                 />
               </chakra.span>
 
@@ -688,6 +686,7 @@ function Register() {
                           justifyContent="space-between"
                         >
                           <Text>{category.name}</Text>
+                          <Text>{category.about}</Text>
                           <Text fontWeight="bold">{category.sum} сум</Text>
                         </Button>
                       </Box>
@@ -720,6 +719,7 @@ function Register() {
                           justifyContent="space-between"
                         >
                           <Text>{category.name}</Text>
+                          <Text>{category.about}</Text>
                           <Text fontWeight="bold">{category.sum} сум</Text>
                         </Button>
                       </Box>

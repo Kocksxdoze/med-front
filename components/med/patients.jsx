@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import fetchClients from "../../utils/fetchClients";
 import {
   Box,
@@ -16,26 +16,29 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Spinner } from "@chakra-ui/react";
 
 function Patients() {
   const [patients, setPatients] = useState([]);
   const [search, setSearch] = useState("");
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const urlSearchQuery = searchParams.get("search");
+
+  // Получаем search параметр через URLSearchParams (клиентский способ)
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const searchQuery = searchParams.get("search");
+    if (searchQuery) {
+      setSearch(decodeURIComponent(searchQuery));
+    }
+  }, []);
 
   useEffect(() => {
-    // Устанавливаем поисковый запрос из URL при загрузке
-    if (urlSearchQuery) {
-      setSearch(decodeURIComponent(urlSearchQuery));
-    }
-
     async function loadPatients() {
       const data = await fetchClients();
       setPatients(Array.isArray(data) ? data : []);
     }
     loadPatients();
-  }, [urlSearchQuery]);
+  }, []);
 
   const filteredPatients = patients.filter((patient) =>
     [
@@ -55,14 +58,12 @@ function Patients() {
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearch(value);
-    // Обновляем URL при изменении поиска
     if (value.trim()) {
       router.push(`/patients?search=${encodeURIComponent(value.trim())}`);
     } else {
       router.push("/patients");
     }
   };
-
   return (
     <Box p={4} borderRadius={"16px"} w="100%" overflowX="auto" bg="#fff">
       <InputGroup mb={4} w={{ base: "100%", md: "50%" }}>
@@ -134,4 +135,10 @@ function Patients() {
   );
 }
 
-export default Patients;
+export default function PatientsPagex() {
+  return (
+    <Suspense fallback={<Spinner size="xl" />}>
+      <Patients />
+    </Suspense>
+  );
+}
